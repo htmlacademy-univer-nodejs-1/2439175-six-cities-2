@@ -2,14 +2,17 @@
 import fs from 'node:fs';
 import chalk from 'chalk';
 import packageJSON from './package.json' assert {type: 'json'};
+import { EOL } from 'node:os';
 
+const helpMsg = chalk.green(
+`-h, --help - to get help for cli
+-v, --version - to get version of app
+-i, --import filenale - imports data form *.tsv file, logs data in console`)
 switch (process.argv[2]) {
     case '--help':
     case '-h':
-        console.log(chalk.green(` --help - to get help for cli
-        --version - to get version of app
-        --import filenale - imports data form *.tsv file, logs data in console
-        `))
+    case undefined:
+        console.log(helpMsg)
         break;
     case '--version':
     case '-v':       
@@ -20,8 +23,7 @@ switch (process.argv[2]) {
         for (let filename of process.argv.slice(3)) {
             fs.readFile(`./mocks/${filename}`, 'utf8', function(err, data) {
                 if (err) throw err;
-                const lines = data.split('\n');
-                lines.forEach(line => console.log(chalk.blue(line)));
+                data.split(EOL).forEach(line => console.log(chalk.blue(line)));
             });
         }
         break;
