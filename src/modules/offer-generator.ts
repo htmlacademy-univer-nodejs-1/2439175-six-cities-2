@@ -1,6 +1,6 @@
 import { OfferGeneratorInterface } from "./offer-generator.interface";
 import { MockData } from "../types/mock-data.type";
-import {generateRandomInt, getRandomItem, getRandomItems} from "../../helpers/random_data";
+import {generateRandomInt, getRandomItem, getRandomItems} from "../../helpers/random_data.js";
 
 export class OfferGenerator implements OfferGeneratorInterface {
     constructor(private readonly mockData: MockData) {}
@@ -22,6 +22,6 @@ export class OfferGenerator implements OfferGeneratorInterface {
         const city = getRandomItem(this.mockData.city);
         return [header, description, publication_date, 
                 preview, photoes, is_premium, is_favourite, type, 
-                rooms_amount, guests_amount, cost, extras, author, city].join('\t')
+                rooms_amount, guests_amount, cost,extras, author, city].join('\t')
     }
 }
