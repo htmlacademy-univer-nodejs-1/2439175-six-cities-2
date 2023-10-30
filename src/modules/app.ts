@@ -10,7 +10,7 @@ export class Application {
     constructor(
         @inject(DIComponent.LoggerInterface) private readonly logger: LoggerInterface,
         @inject(DIComponent.ConfigInterface) private readonly config: ConfigInterface<SitiesSchema>
-    ){}
+    ) { }
     public async init() {
         this.logger.info('Application initialized');
         this.logger.info(
