@@ -1,0 +1,59 @@
+{
+    "header": [
+        "Сдам гараж в аренду 1",
+        "Сдам гараж в аренду 2",
+        "Сдам гараж в аренду 3",
+        "Сдам гараж в аренду 4",
+        "Сдам гараж в аренду 5",
+        "Сдам гараж в аренду 6"
+    ],
+    "description": [
+        "Very long description 1",
+        "Very long description 2",
+        "Very long description 3",
+        "Very long description 4",
+        "Very long description 5",
+        "Very long description 6"
+    ],
+    "publication_date": [
+        "DateTime1",
+        "DateTime2",
+        "DateTime3",
+        "DateTime4",
+        "DateTime5",
+        "DateTime6"
+    ],
+    "preview": [
+        "img.1",
+        "img.2",
+        "img.3",
+        "img.4",
+        "img.5",
+        "img.6"
+    ],
+    "photoes": [
+        ["img1", "img2", "img3"],
+        ["png1", "png2", "png3"],
+        ["jpeg1", "jpeg2", "jpeg3"]
+    ],
+    "type": [
+        "apartment",
+        "house",
+        "room",
+        "hotel"
+    ],
+    "extras": [
+        "toilet",
+        "air conditioning",
+        "fridge"
+    ],
+    "author": [
+        "john doe",
+        "not amigo"
+    ],
+    "city": [
+        "Paris (latitude: 48.85661, longitude: 2.351499)",
+        "Cologne (latitude: 50.938361, longitude: 6.959974)",
+        "Brussels (latitude: 50.846557, longitude: 4.351697)"
+    ]
+}
