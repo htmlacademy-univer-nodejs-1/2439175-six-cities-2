@@ -1,25 +1,24 @@
 #!/usr/bin/env node
-import fs from 'node:fs';
+// import fs from 'node:fs';
 import { appendFile } from 'fs/promises';
 import chalk from 'chalk';
-import packageJSON from './package.json' assert {type: 'json'};
-import {OfferGenerator} from './src/modules/offer-generator.ts';
+// import packageJSON from './package.json' assert {type: 'json'};
+import {OfferGenerator} from './src/modules/offer-generator.js';
 import got from 'got';
-import { stdout } from 'node:process';
 
 switch (process.argv[2]) {
     case '--help':
     case '-h':
         help();
         break;
-    case '--version':
-    case '-v':       
-        version();
-        break;
-    case '--import':
-    case '-i':
-        import_command();
-        break;
+    // case '--version':
+    // case '-v':       
+    //     version();
+    //     break;
+    // case '--import':
+    // case '-i':
+    //     import_command();
+        // break;
     case '-g':
     case '--generate':
         generate();
@@ -41,19 +40,19 @@ function def() {
     console.log(chalk.red('unknown command'));
 }
 
-function version() {
-    console.log(chalk.yellow(packageJSON.version));
-}
+// function version() {
+//     console.log(chalk.yellow(packageJSON.version));
+// }
 
-function import_command() {
-    const pipe = async (name) => {
-        const sourceFile = fs.createReadStream(name);
-        sourceFile.pipe(process.stdout);
-    };
-    for (let filename of process.argv.slice(3)) {
-        pipe(`${filename}`);
-    }
-}
+// function import_command() {
+//     const pipe = async (name) => {
+//         const sourceFile = fs.createReadStream(name);
+//         sourceFile.pipe(process.stdout);
+//     };
+//     for (let filename of process.argv.slice(3)) {
+//         pipe(`${filename}`);
+//     }
+// }
 
 async function generate() {
     let data = {};

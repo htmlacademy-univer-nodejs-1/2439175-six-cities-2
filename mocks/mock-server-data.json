@@ -16,12 +16,7 @@
         "Very long description 6"
     ],
     "publication_date": [
-        "DateTime1",
-        "DateTime2",
-        "DateTime3",
-        "DateTime4",
-        "DateTime5",
-        "DateTime6"
+        "2023-11-06T16:55:58.648Z"
     ],
     "preview": [
         "img.1",
@@ -32,40 +27,41 @@
         "img.6"
     ],
     "photoes": [
-        [
-            "img1",
-            "img2",
-            "img3"
-        ],
-        [
-            "png1",
-            "png2",
-            "png3"
-        ],
-        [
-            "jpeg1",
-            "jpeg2",
-            "jpeg3"
-        ]
+        "img1",
+        "img2",
+        "img.3",
+        "img.4",
+        "img.5",
+        "img.6"
     ],
     "type": [
-        "apartment",
-        "house",
-        "room",
-        "hotel"
+        "Apartment",
+        "House",
+        "Room",
+        "Hotel"
     ],
     "extras": [
-        "toilet",
-        "air conditioning",
-        "fridge"
+        "Breakfast",
+        "Washer"
     ],
     "author": [
-        "john doe",
-        "not amigo"
+        "123456"
     ],
     "city": [
-        "Paris (latitude: 48.85661, longitude: 2.351499)",
-        "Cologne (latitude: 50.938361, longitude: 6.959974)",
-        "Brussels (latitude: 50.846557, longitude: 4.351697)"
+        "Paris",
+        "Cologne",
+        "Brussels"
+    ],
+    "firstname": [
+        "amigo"
+    ],
+    "email": [
+        "jopa@mail.ru"
+    ],
+    "user_type": [
+        "Base"
+    ],
+    "avatar": [
+        "ing1.png"
     ]
 }

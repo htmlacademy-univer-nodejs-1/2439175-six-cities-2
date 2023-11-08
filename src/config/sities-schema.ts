@@ -5,8 +5,12 @@ convict.addFormat(ipaddress);
 
 export type SitiesSchema = {
     PORT: number;
-    IP: string;
+    DB_HOST: string;
     SALT: string;
+    DB_USER: string;
+    DB_PASSWORD: string;
+    DB_PORT: string;
+    DB_NAME: string;
 }
 
 const generateRandomString = (): string => {
@@ -32,10 +36,34 @@ export const configSitiesSchema = convict<SitiesSchema>({
         format: String,
         default: generateRandomString()
     },
-    IP: {
+    DB_HOST: {
         doc: 'IP-address for incoming connection',
         format: 'ipaddress',
-        env: 'IP',
+        env: 'DB_HOST',
         default: null,
     },
+    DB_USER: {
+        doc: 'User for database MongoDB',
+        format: String,
+        env: 'DB_USER',
+        default: null,
+    },
+    DB_PASSWORD: {
+        doc: 'Database pssword for DB_USER',
+        format: String,
+        env: 'DB_PASSWORD',
+        default: null,
+    },
+    DB_PORT: {
+        doc: 'Port for databse connection',
+        format: String,
+        env: 'DB_PORT',
+        default: null,
+    },
+    DB_NAME: {
+        doc: 'MongoDB database name',
+        format: String,
+        env: 'DB_NAME',
+        default: null,
+    }
 })
