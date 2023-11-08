@@ -32,9 +32,21 @@
         "img.6"
     ],
     "photoes": [
-        ["img1", "img2", "img3"],
-        ["png1", "png2", "png3"],
-        ["jpeg1", "jpeg2", "jpeg3"]
+        [
+            "img1",
+            "img2",
+            "img3"
+        ],
+        [
+            "png1",
+            "png2",
+            "png3"
+        ],
+        [
+            "jpeg1",
+            "jpeg2",
+            "jpeg3"
+        ]
     ],
     "type": [
         "apartment",
