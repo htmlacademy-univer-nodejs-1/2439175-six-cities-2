@@ -8,4 +8,8 @@ export type MockData = {
     extras: string[];
     author: string[];
     city: string[];
+    firstname: string[];
+    email: string[];
+    user_type: string[];
+    avatar: string[];
 }
