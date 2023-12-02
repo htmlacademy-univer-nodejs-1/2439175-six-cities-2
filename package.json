@@ -16,7 +16,7 @@
     "clean": "rimraf dist",
     "mock:server": "json-server ./mocks/mock-server-data.json --port 3123",
     "ts": "ts-node",
-    "devstart": "npm run ts ./src/main.ts node | pino-pretty --colorize --translateTime SYS:standard"
+    "devstart": "nodemon"
   },
   "devDependencies": {
     "@types/convict-format-with-validator": "^6.0.4",
@@ -49,6 +49,7 @@
     "inversify": "6.0.1",
     "json-server": "0.17.1",
     "mongoose": "^7.6.1",
+    "nodemon": "3.0.1",
     "pino": "8.7.0",
     "reflect-metadata": "0.1.13"
   }
