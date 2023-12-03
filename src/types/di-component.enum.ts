@@ -6,5 +6,7 @@ export const DIComponent = {
     UserServiceInterface: Symbol.for('UserServiceInterface'),
     UserModel: Symbol.for('UserModel'),
     RentalOfferServiceInterface: Symbol.for('RentalOfferServiceInterface'),
-    RentalOfferModel: Symbol.for('RentalOfferModel')
+    RentalOfferModel: Symbol.for('RentalOfferModel'),
+    CommentModel: Symbol.for('Commentmodel'),
+    CommentServiceInterface: Symbol.for('CommentServiceInterface')
 } as const;

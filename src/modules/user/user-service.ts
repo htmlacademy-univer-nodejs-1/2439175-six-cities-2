@@ -6,6 +6,7 @@ import { inject, injectable } from "inversify";
 import { DIComponent } from "../../types/di-component.enum.js";
 import { LoggerInterface } from "../../logger/logger-interface.js";
 import 'reflect-metadata';
+import { RentalOfferEntity } from "../rental-offer/rental-offer-entity.js";
 
 @injectable()
 export class UserService implements UserServiceInterface {
@@ -39,5 +40,18 @@ export class UserService implements UserServiceInterface {
 
     public async findById(id: string): Promise<DocumentType<UserEntity> | null> {
         return this.userModel.findById(id);
+    }
+
+    public addToFavoritesById(id: string, offerId: string): Promise<DocumentType<RentalOfferEntity>[] | null> {
+        return this.userModel.findByIdAndUpdate(id, {$push: {favourites: offerId}, new: true});
+    }
+
+    public removeFromFavoritesById(id: string, offerId: string): Promise<DocumentType<RentalOfferEntity>[] | null> {
+        return this.userModel.findByIdAndUpdate(id, {$pull: {favourites: offerId}, new: true});
+    }
+
+    public async getFavourites(id: string): Promise<DocumentType<RentalOfferEntity>[]> {
+        const innerFavourites = this.userModel.findById(id).select('favourites');
+        return innerFavourites ? this.userModel.find({_id: {$in: innerFavourites.favourites}}) : [];
     }
 }
