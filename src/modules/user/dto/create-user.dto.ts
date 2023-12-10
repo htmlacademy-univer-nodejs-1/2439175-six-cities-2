@@ -6,4 +6,5 @@ export class CreateUserDTO {
     public firstname!: string;
     public password!: string;
     public type!: UserType;
+    public favourites!: [string];
 }
