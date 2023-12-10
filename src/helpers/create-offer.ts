@@ -25,11 +25,14 @@ export function createOffer(data: string): RentalOffer {
         userType
     ] = data.replace('\n', '').split('\t');
 
+    const arr: [string] = [['1'][0]];
+
     const user = {
         email: email,
         firstname: firstname,
         avatarSourcePath: avatarPath,
         type: getUserTypeEnum(userType),
+        favourites: arr
     };
 
     return {

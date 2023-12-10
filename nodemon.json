@@ -3,5 +3,5 @@
         "src"
     ],
     "ext": "ts, json",
-    "exec": "npm run ts ./src/main.rest.ts | pino-pretty --colorize --translateTime SYS:standar"
+    "exec": "npm run ts ./src/main.ts | pino-pretty --colorize --translateTime SYS:standar"
 }
