@@ -33,7 +33,7 @@ export class CreateRentalOfferDTO {
     public rooms!: number;
     public guests!: number;
     public cost!: number;
-    public extras!: ExtrasType[];
+    public extras!: string[];
     public author!: string;
     public coordinates!: Coordinates;
 }

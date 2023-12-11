@@ -8,5 +8,9 @@ export const DIComponent = {
     RentalOfferServiceInterface: Symbol.for('RentalOfferServiceInterface'),
     RentalOfferModel: Symbol.for('RentalOfferModel'),
     CommentModel: Symbol.for('Commentmodel'),
-    CommentServiceInterface: Symbol.for('CommentServiceInterface')
+    CommentServiceInterface: Symbol.for('CommentServiceInterface'),
+    UserController: Symbol.for('UserController'),
+    RentalOfferController: Symbol.for('RentalOfferController'),
+    CommentController: Symbol.for('CommentController'),
+    ExceptionFilterInterface: Symbol.for('ExceptionFilterInterface'),
 } as const;
