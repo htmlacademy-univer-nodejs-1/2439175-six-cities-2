@@ -5,5 +5,4 @@ export type User = {
     email: string;
     avatarSourcePath: string;
     type: UserType;
-    favourites: [string];
 }
