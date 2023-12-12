@@ -35,4 +35,8 @@ export default class CommentService implements CommentServiceInterface {
     const result = await this.commentModel.deleteMany({offerId}).exec();
     return result.deletedCount;
   }
+
+  public async exists(offerId: string): Promise<boolean> {
+    return (await this.commentModel.exists({_id: offerId})) !== null;
+  }
 }

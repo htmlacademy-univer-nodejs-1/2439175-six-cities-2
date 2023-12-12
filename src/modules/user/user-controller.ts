@@ -14,6 +14,8 @@ import { StatusCodes } from "http-status-codes";
 import { ValidateDtoMiddleware } from "../../middleware/validate-dto.middleware.js";
 import { CreateUserDTO } from "./dto/create-user.dto.js";
 import { LoginUserDTO } from "./dto/login-user.dto.js";
+import { ValidateObjectIdMiddleware } from "../../middleware/validate-object-id.middleware.js";
+import { UploadFileMiddleware } from "../../middleware/upload-file.middleware.js";
 
 
 @injectable()
@@ -27,7 +29,7 @@ export class UserController extends Controller {
 
         this.addRoute({
             path: '/register',
-            method: HttpMethod.Get,
+            method: HttpMethod.Post,
             handler: this.create,
             middlewares: [new ValidateDtoMiddleware(CreateUserDTO)]
         });
@@ -39,14 +41,20 @@ export class UserController extends Controller {
             middlewares: [new ValidateDtoMiddleware(LoginUserDTO)]
         })
 
-        // this.addRoute({
-        //     path: '/:Id/avatar',
-        //     method: HttpMethod.Post,
-        //     handler: this.uploadAvatar
-        // });
+        this.addRoute({
+            path: '/:userId/avatar',
+            method: HttpMethod.Post,
+            handler: this.uploadAvatar,
+            middlewares: [
+                new ValidateObjectIdMiddleware('userId'),
+                new UploadFileMiddleware(this.configInterface.get('UPLOAD_DIRECTORY'), 'avatar')
+            ]
+        });
     }
 
-    public async create({body}: Request, res: Response): Promise<void> {
+    public async create(
+        { body }: Request<Record<string, unknown>, Record<string, unknown>, CreateUserDTO>,
+         res: Response): Promise<void> {
         const isUserExists = await this.userInterface.findByEmail(body.email);
 
         if (isUserExists) {
@@ -77,10 +85,9 @@ export class UserController extends Controller {
           );
     }
 
-    // public async uploadAvatar(_req: Request, res: Response) {
-    //     this.created(res, {
-    //         // avatarSourcePath: req.file?.path
-    //         avatarSourcePath: "./"
-    //     });
-    // }
+    public async uploadAvatar(req: Request, res: Response) {
+        this.created(res, {
+            avatarSourcePath: req.file?.path
+        });
+    }
 }

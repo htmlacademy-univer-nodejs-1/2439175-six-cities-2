@@ -10,13 +10,12 @@ import { Request, Response } from "express";
 import { createDTOfromRDO } from "../../helpers/common.js";
 import { RentalOfferRDO } from "./rdo/rental-offer-rdo.js";
 import { FavouriteRentalOfferRDO } from "./rdo/favoirite-rental-offer-rdo.js";
-import { HttpError } from "../../errors/http-errors.js";
-import { StatusCodes } from "http-status-codes";
 import { ParamsOfferDetails, UnknownRecord } from "../../types/params.js";
 import { CreateRentalOfferDTO, UpdateRentalOfferDTO } from "./dto/rental-offer-dto.js";
 import CommentRdo from "../comment/rdo/comment-rdo.js";
 import { ValidateObjectIdMiddleware } from "../../middleware/validate-object-id.middleware.js";
 import { ValidateDtoMiddleware } from "../../middleware/validate-dto.middleware.js";
+import { DocumentExistsMiddleware } from "../../middleware/document-exits.middleware.js";
 
 @injectable()
 export class RentalOfferController extends Controller {
@@ -46,7 +45,9 @@ export class RentalOfferController extends Controller {
             path: '/:offerId',
             method: HttpMethod.Get,
             handler: this.show,
-            middlewares: [new ValidateObjectIdMiddleware('offerId')]
+            middlewares: [
+                new ValidateObjectIdMiddleware('offerId'),
+                new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId')]
         });
 
         this.addRoute({
@@ -55,14 +56,17 @@ export class RentalOfferController extends Controller {
             handler: this.update,
             middlewares: [
                 new ValidateObjectIdMiddleware('offerId'),
-                new ValidateDtoMiddleware(UpdateRentalOfferDTO)]
+                new ValidateDtoMiddleware(UpdateRentalOfferDTO),
+                new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId')]
         });
 
         this.addRoute({
             path: '/:offerId',
             method: HttpMethod.Delete,
             handler: this.delete,
-            middlewares: [new ValidateObjectIdMiddleware('offerId')]
+            middlewares: [
+                new ValidateObjectIdMiddleware('offerId'),
+                new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId')]
         });
 
         this.addRoute({
@@ -82,7 +86,9 @@ export class RentalOfferController extends Controller {
             path: '/favourites/:offerId',
             method: HttpMethod.Delete,
             handler: this.removeFavourite,
-            middlewares: [new ValidateObjectIdMiddleware('offerId')]
+            middlewares: [
+                new ValidateObjectIdMiddleware('offerId'),
+                new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId')]
         });
 
         this.addRoute({
@@ -91,7 +97,14 @@ export class RentalOfferController extends Controller {
             handler: this.getFavourites,
         });
 
-        this.addRoute({path: '/:offerId/comments', method: HttpMethod.Get, handler: this.getComments});
+        this.addRoute({
+            path: '/:offerId/comments', 
+            method: HttpMethod.Get, 
+            handler: this.getComments,
+            middlewares: [
+                new ValidateObjectIdMiddleware('offerId'),
+                new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId')]
+        });
     }
 
     public async index(_req: Request, res: Response): Promise<void> {
@@ -108,26 +121,11 @@ export class RentalOfferController extends Controller {
     public async show({params}: Request<ParamsOfferDetails>, res: Response): Promise<void> {
         const { offerId } = params;
         const offer = await this.rentalOfferInterface.findById(offerId);
-        if (!offer) {
-            throw new HttpError(
-                StatusCodes.NOT_FOUND,
-                `Offer with id ${offerId} not found`,
-                'OfferController'
-            );
-        }
-        
         this.ok(res, createDTOfromRDO(RentalOfferRDO, offer));
     }
 
     public async update({params, body}: Request<ParamsOfferDetails, UnknownRecord, UpdateRentalOfferDTO>, res: Response): Promise<void> {
         const updatedOffer = await this.rentalOfferInterface.updateById(params.offerId, body);
-        if (!updatedOffer) {
-            throw new HttpError(
-              StatusCodes.NOT_FOUND,
-              `Offer with id ${params.offerId} not found.`,
-              'OfferController'
-            );
-          }
         this.ok(res, createDTOfromRDO(RentalOfferRDO, updatedOffer));
     }
 
@@ -136,15 +134,6 @@ export class RentalOfferController extends Controller {
         res: Response
       ): Promise<void> {
         const {offerId} = params;
-        const offer = await this.rentalOfferInterface.findById(offerId);
-        if (!offer) {
-            throw new HttpError(
-                StatusCodes.NOT_FOUND,
-                `Offer with id ${offerId} not found`,
-                'OfferController'
-            );
-        }
-    
         const comments = await this.commentInterface.findByOfferId(offerId);
         this.ok(res, createDTOfromRDO(CommentRdo, comments));
     }
@@ -152,13 +141,6 @@ export class RentalOfferController extends Controller {
     public async delete({params}: Request<ParamsOfferDetails>, res: Response): Promise<void> {
         const { offerId } = params;
         const offer = await this.rentalOfferInterface.deleteById(offerId);
-        if (!offer) {
-            throw new HttpError(
-                StatusCodes.NOT_FOUND,
-                `Offer with id ${offerId} not found.`,
-                'OfferController'
-              );
-        }
         await this.commentInterface.deleteByOfferId(params.offerId);
         this.noContent(res, offer);
     }

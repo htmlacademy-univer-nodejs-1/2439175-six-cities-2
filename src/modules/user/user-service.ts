@@ -54,4 +54,8 @@ export class UserService implements UserServiceInterface {
         const innerFavourites = this.userModel.findById(id).select('favourites');
         return innerFavourites ? this.userModel.find({_id: {$in: innerFavourites.favourites}}) : [];
     }
+
+    public async exists(id: string): Promise <boolean> {
+        return (await this.userModel.exists({_id: id})) !== null;
+    }
 }

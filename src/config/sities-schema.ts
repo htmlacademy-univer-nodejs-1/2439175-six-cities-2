@@ -11,6 +11,7 @@ export type SitiesSchema = {
     DB_PASSWORD: string;
     DB_PORT: string;
     DB_NAME: string;
+    UPLOAD_DIRECTORY: string;
 }
 
 const generateRandomString = (): string => {
@@ -65,5 +66,11 @@ export const configSitiesSchema = convict<SitiesSchema>({
         format: String,
         env: 'DB_NAME',
         default: null,
-    }
-})
+    },
+    UPLOAD_DIRECTORY: {
+      doc: 'Directory for upload files',
+      format: String,
+      env: 'UPLOAD_DIRECTORY',
+      default: null
+    },
+});

@@ -1,0 +1,26 @@
+## Отправить изображение
+
+POST http://localhost:1337/users/65784f20f8f4d1ca5ecc1650/avatar HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="avatar"; filename="screen.png"
+Content-Type: image/png
+
+< /Users/amigo/Desktop/test.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+## Создать пользователя
+POST http://localhost:1337/users/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "unexisting@yandex.ru",
+  "avatarSourcePath": "ogima.png",
+  "firstname": "Ilya",
+  "type": "Base",
+  "password": "password"
+}
+
