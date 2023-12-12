@@ -63,13 +63,17 @@ export class Application {
         this.logger.info('Starting initing routes');
         this.expressApplication.use('/offer', this.rentalOfferController.router);
         this.expressApplication.use('/comment', this.commentControler.router);
-        this.expressApplication.use('/user', this.userController.router);
+        this.expressApplication.use('/users', this.userController.router);
         this.logger.info('Inited routes')
     };
 
     private async _initMiddleware() {
         this.logger.info('Clobal middleware initialization');
         this.expressApplication.use(express.json());
+        this.expressApplication.use(
+            '/upload',
+            express.static(this.config.get('UPLOAD_DIRECTORY'))
+        )
         this.logger.info('Global middleware initialized');
     }
 

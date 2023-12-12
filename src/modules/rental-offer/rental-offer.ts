@@ -52,6 +52,10 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
 
     public async findPremiumInCity(city: string): Promise<DocumentType<RentalOfferEntity>[]> {
         return this.rentalOfferModel.find({city: city, isPremium: true}).sort({date: -1}).limit(MAX_OFFERS).populate('user').exec();
-      }
+    }
+
+    public async exists(id: string): Promise<boolean> {
+        return (await(this.rentalOfferModel.find({_id: id}))) !== null;
+    }
     
 }
