@@ -11,6 +11,9 @@ import UserRdo from "./rdo/user-rdo.js";
 import { SitiesSchema } from "../../config/sities-schema.js";
 import { HttpError } from "../../errors/http-errors.js";
 import { StatusCodes } from "http-status-codes";
+import { ValidateDtoMiddleware } from "../../middleware/validate-dto.middleware.js";
+import { CreateUserDTO } from "./dto/create-user.dto.js";
+import { LoginUserDTO } from "./dto/login-user.dto.js";
 
 
 @injectable()
@@ -25,13 +28,15 @@ export class UserController extends Controller {
         this.addRoute({
             path: '/register',
             method: HttpMethod.Get,
-            handler: this.create
+            handler: this.create,
+            middlewares: [new ValidateDtoMiddleware(CreateUserDTO)]
         });
 
         this.addRoute({
             path: '/login',
             method: HttpMethod.Post,
-            handler: this.login
+            handler: this.login,
+            middlewares: [new ValidateDtoMiddleware(LoginUserDTO)]
         })
 
         // this.addRoute({
@@ -58,13 +63,18 @@ export class UserController extends Controller {
 
     public async login({body}: Request, _res: Response): Promise<void> {
         const isUserExists = await this.userInterface.findByEmail(body.email);
-        if (isUserExists) {
+        if (!isUserExists) {
             throw new HttpError(
                 StatusCodes.CONFLICT,
                 `User with email ${body.email} already exists`,
                 'User controller'
             );
         }
+        throw new HttpError(
+            StatusCodes.NOT_IMPLEMENTED,
+            'Not implemented',
+            'UserController',
+          );
     }
 
     // public async uploadAvatar(_req: Request, res: Response) {

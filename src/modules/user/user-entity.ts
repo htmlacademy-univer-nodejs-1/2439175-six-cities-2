@@ -29,7 +29,7 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
     public type!: UserType;
 
     @prop({required: false, default:[]})
-    public favourites: [string];
+    public favourites!: [string];
 
     constructor(user: User) {
         super();
@@ -38,7 +38,6 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
         this.firstname = user.firstname,
         this.avatarSourcePath = user.avatarSourcePath,
         this.type = user.type
-        this.favourites = user.favourites
     }
 
     public setPassword(password: string, salt: string) {
