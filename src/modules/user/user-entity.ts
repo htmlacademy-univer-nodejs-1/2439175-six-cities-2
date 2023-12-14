@@ -23,7 +23,8 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
     @prop({default: RICK_ASTLEY_AVATAR, match: /.*\.(jpg|jpeg|png|gif)$/, required: false})
     public avatarSourcePath!: string;
 
-    public password!: string;
+    @prop({ required: true, default: '' })
+    public password?: string;
 
     @prop({required: true, enum: UserType, type: () => String})
     public type!: UserType;
@@ -48,7 +49,12 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
         return this.password;
     }
 
-    public checkPassword = (password: string, salt: string) => createSHA256(password, salt) === this.password;
+    public checkPassword(password: string, salt: string): boolean {
+        const encrypted = createSHA256(password, salt);
+        console.log(encrypted)
+        console.log(this.password)
+        return createSHA256(password, salt) === this.password;
+    }
 }
 
 export const UserModel = getModelForClass(UserEntity); 

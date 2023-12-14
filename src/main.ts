@@ -6,9 +6,10 @@ import { createRestApplicationContainer } from "./rest-service.js";
 import { userContainer } from "./modules/user/user-container.js";
 import { createOfferContainer } from "./modules/rental-offer/offer-container.js";
 import { CommentContainer } from "./modules/comment/comment-container.js";
+import { createAuthContainer } from "./auth/auth-container.js";
 
 async function bootstrap() {
-    const container = Container.merge(createRestApplicationContainer(), userContainer(), createOfferContainer(), CommentContainer())
+    const container = Container.merge(createRestApplicationContainer(), userContainer(), createOfferContainer(), CommentContainer(), createAuthContainer())
 
     const app = container.get<Application>(DIComponent.Application);
     await app.init();

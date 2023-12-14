@@ -12,6 +12,7 @@ export type SitiesSchema = {
     DB_PORT: string;
     DB_NAME: string;
     UPLOAD_DIRECTORY: string;
+    JWT_SECRET: string;
 }
 
 const generateRandomString = (): string => {
@@ -73,4 +74,10 @@ export const configSitiesSchema = convict<SitiesSchema>({
       env: 'UPLOAD_DIRECTORY',
       default: null
     },
+    JWT_SECRET: {
+        doc: 'Secret for sign JWT',
+        format: String,
+        env: 'JWT_SECRET',
+        default: null
+      },
 });

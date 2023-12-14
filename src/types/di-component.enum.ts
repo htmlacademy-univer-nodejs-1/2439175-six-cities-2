@@ -13,4 +13,6 @@ export const DIComponent = {
     RentalOfferController: Symbol.for('RentalOfferController'),
     CommentController: Symbol.for('CommentController'),
     ExceptionFilterInterface: Symbol.for('ExceptionFilterInterface'),
+    AuthExceptionFilter: Symbol.for('AuthExceptionFilter'),
+    AuthServiceInterface: Symbol.for('AuthServiceInterface'),
 } as const;

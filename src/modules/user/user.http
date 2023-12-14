@@ -17,10 +17,24 @@ POST http://localhost:1337/users/register HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "unexisting@yandex.ru",
+  "email": "exist@yandex.ru",
   "avatarSourcePath": "ogima.png",
   "firstname": "Ilya",
   "type": "Base",
   "password": "password"
 }
+
+###
+
+## Логин пользователя
+
+POST http://localhost:1337/users/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "exist3@yandex.ru",
+  "password": "password"
+}
+
+###
 
