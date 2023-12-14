@@ -11,6 +11,8 @@ import { ControllerInterface } from "../controller/controller-interface.js";
 import { CommentController } from "./comment/comment-controller.js";
 import { UserController } from "./user/user-controller.js";
 import { ExceptionFilterInterface } from "../exception-filters/exception-filter.interface.js";
+import { AuthExceptionFilter } from "../auth/auth-exceptions-filter.js";
+import { ParseTokenMiddleware } from "../middleware/parse-token.middleware.js";
 
 @injectable()
 export class Application {
@@ -24,6 +26,7 @@ export class Application {
         @inject(DIComponent.CommentController) private readonly commentControler: CommentController,
         @inject(DIComponent.UserController) private readonly userController: UserController,
         @inject(DIComponent.ExceptionFilterInterface) private readonly exceptionFilterInterface: ExceptionFilterInterface,
+        @inject(DIComponent.AuthExceptionFilter) private readonly authExceptionFilterInterface: AuthExceptionFilter,
     ) {
         this.expressApplication = express();
     }
@@ -68,18 +71,21 @@ export class Application {
     };
 
     private async _initMiddleware() {
-        this.logger.info('Clobal middleware initialization');
+        this.logger.info('Global middleware initialization');
+        const authMiddleware = new ParseTokenMiddleware(this.config.get('JWT_SECRET'));
         this.expressApplication.use(express.json());
         this.expressApplication.use(
             '/upload',
             express.static(this.config.get('UPLOAD_DIRECTORY'))
-        )
+        );
+        this.expressApplication.use(authMiddleware.execute.bind(authMiddleware));
         this.logger.info('Global middleware initialized');
     }
 
     private async _initExceptionFilter() {
         this.logger.info("Init exception filer");
-        this.expressApplication.use(this.exceptionFilterInterface.catch.bind(this.exceptionFilterInterface))
+        this.expressApplication.use(this.authExceptionFilterInterface.catch.bind(this.authExceptionFilterInterface));
+        this.expressApplication.use(this.exceptionFilterInterface.catch.bind(this.exceptionFilterInterface));
     }
 
     private async _initServer(){

@@ -10,12 +10,13 @@ import { Request, Response } from "express";
 import { createDTOfromRDO } from "../../helpers/common.js";
 import { RentalOfferRDO } from "./rdo/rental-offer-rdo.js";
 import { FavouriteRentalOfferRDO } from "./rdo/favoirite-rental-offer-rdo.js";
-import { ParamsOfferDetails, UnknownRecord } from "../../types/params.js";
+import { ParamsCountForOFfer, ParamsOfferDetails, UnknownRecord } from "../../types/params.js";
 import { CreateRentalOfferDTO, UpdateRentalOfferDTO } from "./dto/rental-offer-dto.js";
 import CommentRdo from "../comment/rdo/comment-rdo.js";
 import { ValidateObjectIdMiddleware } from "../../middleware/validate-object-id.middleware.js";
 import { ValidateDtoMiddleware } from "../../middleware/validate-dto.middleware.js";
 import { DocumentExistsMiddleware } from "../../middleware/document-exits.middleware.js";
+import { PrivateRouteMiddleware } from "../../middleware/private-route.middleware.js";
 
 @injectable()
 export class RentalOfferController extends Controller {
@@ -38,7 +39,10 @@ export class RentalOfferController extends Controller {
             path: '/',
             method: HttpMethod.Post,
             handler: this.create,
-            middlewares: [new ValidateDtoMiddleware(CreateRentalOfferDTO)]
+            middlewares: [
+                new PrivateRouteMiddleware(),
+                new ValidateDtoMiddleware(CreateRentalOfferDTO)
+            ]
         });
 
         this.addRoute({
@@ -55,6 +59,7 @@ export class RentalOfferController extends Controller {
             method: HttpMethod.Patch,
             handler: this.update,
             middlewares: [
+                new PrivateRouteMiddleware(),
                 new ValidateObjectIdMiddleware('offerId'),
                 new ValidateDtoMiddleware(UpdateRentalOfferDTO),
                 new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId')]
@@ -65,6 +70,7 @@ export class RentalOfferController extends Controller {
             method: HttpMethod.Delete,
             handler: this.delete,
             middlewares: [
+                new PrivateRouteMiddleware(),
                 new ValidateObjectIdMiddleware('offerId'),
                 new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId')]
         });
@@ -72,14 +78,20 @@ export class RentalOfferController extends Controller {
         this.addRoute({
             path: '/premium/:city',
             method: HttpMethod.Get,
-            handler: this.showPremium
+            handler: this.showPremium,
+            middlewares: [
+                new PrivateRouteMiddleware(),
+            ]
         });
 
         this.addRoute({
             path: '/favourites/:offerId',
             method: HttpMethod.Post,
             handler: this.addFavourite,
-            middlewares: [new ValidateObjectIdMiddleware('offerId')]
+            middlewares: [
+                new PrivateRouteMiddleware(),
+                new ValidateObjectIdMiddleware('offerId')
+            ]
         });
 
         this.addRoute({
@@ -87,6 +99,7 @@ export class RentalOfferController extends Controller {
             method: HttpMethod.Delete,
             handler: this.removeFavourite,
             middlewares: [
+                new PrivateRouteMiddleware(),
                 new ValidateObjectIdMiddleware('offerId'),
                 new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId')]
         });
@@ -95,6 +108,9 @@ export class RentalOfferController extends Controller {
             path: '/favourites',
             method: HttpMethod.Get,
             handler: this.getFavourites,
+            middlewares: [
+                new PrivateRouteMiddleware(),
+            ]
         });
 
         this.addRoute({
@@ -107,13 +123,14 @@ export class RentalOfferController extends Controller {
         });
     }
 
-    public async index(_req: Request, res: Response): Promise<void> {
-        const offers = await this.rentalOfferInterface.find(undefined);
+    public async index({params}: Request<ParamsCountForOFfer>, res: Response): Promise<void> {
+        const offerCount = params.count ? parseInt(`${params.count}`, 10) : 60;
+        const offers = await this.rentalOfferInterface.find(offerCount);
         this.ok(res, createDTOfromRDO(RentalOfferRDO, offers));
     }
     
-    public async create({ body }: Request<UnknownRecord, UnknownRecord, CreateRentalOfferDTO>, res: Response): Promise<void> {
-        const result = await this.rentalOfferInterface.create(body);
+    public async create({ body, tokenPayload }: Request<UnknownRecord, UnknownRecord, CreateRentalOfferDTO>, res: Response): Promise<void> {
+        const result = await this.rentalOfferInterface.create({...body, author: tokenPayload.id});
         const offer = await this.rentalOfferInterface.findById(result.id);
         this.created(res, createDTOfromRDO(RentalOfferRDO, offer));
     }
@@ -124,8 +141,8 @@ export class RentalOfferController extends Controller {
         this.ok(res, createDTOfromRDO(RentalOfferRDO, offer));
     }
 
-    public async update({params, body}: Request<ParamsOfferDetails, UnknownRecord, UpdateRentalOfferDTO>, res: Response): Promise<void> {
-        const updatedOffer = await this.rentalOfferInterface.updateById(params.offerId, body);
+    public async update({params, body, tokenPayload}: Request<ParamsOfferDetails, UnknownRecord, UpdateRentalOfferDTO>, res: Response): Promise<void> {
+        const updatedOffer = await this.rentalOfferInterface.updateById(params.offerId, {...body, author: tokenPayload.id});
         this.ok(res, createDTOfromRDO(RentalOfferRDO, updatedOffer));
     }
 
@@ -150,18 +167,18 @@ export class RentalOfferController extends Controller {
         this.ok(res, createDTOfromRDO(RentalOfferRDO, offers));
     }
 
-    public async getFavourites({params}: Request, _res: Response): Promise<void> {
-        const offers = await this.userInterface.getFavourites(params.id);
+    public async getFavourites({tokenPayload}: Request, _res: Response): Promise<void> {
+        const offers = await this.userInterface.getFavourites(tokenPayload.id);
         this.ok(_res, createDTOfromRDO(FavouriteRentalOfferRDO, offers));
     }
 
-    public async addFavourite({ params }: Request, res: Response): Promise<void> {
-        await this.userInterface.addToFavoritesById(params.offerId, params.id);
+    public async addFavourite({ params, tokenPayload }: Request, res: Response): Promise<void> {
+        await this.userInterface.addToFavoritesById(tokenPayload.id, params.offerId);
         this.noContent(res, {message: 'Added to favourites'});
     }
 
-    public async removeFavourite({ params }: Request, res: Response): Promise<void> {
-        await this.userInterface.removeFromFavoritesById(params.offerId, params.id);
+    public async removeFavourite({ params, tokenPayload }: Request, res: Response): Promise<void> {
+        await this.userInterface.removeFromFavoritesById(tokenPayload.id, params.offerId);
         this.noContent(res, {message: 'Removed from favourites'});
     }
 }

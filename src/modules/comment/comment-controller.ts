@@ -14,6 +14,7 @@ import { HttpError } from "../../errors/http-errors.js";
 import { StatusCodes } from "http-status-codes";
 import { ValidateObjectIdMiddleware } from "../../middleware/validate-object-id.middleware.js";
 import { ValidateDtoMiddleware } from "../../middleware/validate-dto.middleware.js";
+import { PrivateRouteMiddleware } from "../../middleware/private-route.middleware.js";
 
 @injectable()
 export class CommentController extends Controller {
@@ -30,20 +31,20 @@ export class CommentController extends Controller {
             handler: this.create,
             middlewares: [
                 new ValidateObjectIdMiddleware('offerId'),
+                new PrivateRouteMiddleware(),
                 new ValidateDtoMiddleware(CreateCommentDto) ]
         })
     }
 
-    public async create({body}: Request<UnknownRecord, UnknownRecord, CreateCommentDto>, res: Response): Promise<void> {
-        const offer = await this.rentalOfferInterface.findById(body.offerId);
-        if (!offer) {
+    public async create({body, tokenPayload}: Request<UnknownRecord, UnknownRecord, CreateCommentDto>, res: Response): Promise<void> {
+        if (!await this.rentalOfferInterface.exists(body.offerId)) {
             throw new HttpError (
                 StatusCodes.NOT_FOUND,
                 `Offer with id ${body.offerId} not found`,
                 'CommentController'
             );
         }
-        const comment = await this.commentInterface.createForOffer(body);
+        const comment = await this.commentInterface.createForOffer({...body, userId: tokenPayload.id});
         await this.rentalOfferInterface.addComment(body.offerId)
         this.created(res, createDTOfromRDO(CommentRdo, comment))
     }
