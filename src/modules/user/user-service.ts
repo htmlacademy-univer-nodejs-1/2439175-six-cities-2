@@ -7,16 +7,19 @@ import { DIComponent } from "../../types/di-component.enum.js";
 import { LoggerInterface } from "../../logger/logger-interface.js";
 import 'reflect-metadata';
 import { RentalOfferEntity } from "../rental-offer/rental-offer-entity.js";
+import { UpdateUserDto } from "./dto/update-user.dto.js";
+
+const DEFAULT_USER_AVATAR = 'jim_halpert.jpg';
 
 @injectable()
 export class UserService implements UserServiceInterface {
     constructor(
         @inject(DIComponent.LoggerInterface) private readonly logger: LoggerInterface,
         @inject(DIComponent.UserModel) private readonly userModel: types.ModelType<UserEntity>
-    ) {}
+    ) { }
 
     public async create(dto: CreateUserDTO, salt: string): Promise<DocumentType<UserEntity>> {
-        const user = new UserEntity(dto);
+        const user = new UserEntity({ ...dto, avatarSourcePath: DEFAULT_USER_AVATAR });
         user.setPassword(dto.password, salt);
 
         const result = await this.userModel.create(user);
@@ -25,7 +28,7 @@ export class UserService implements UserServiceInterface {
     }
 
     public async findByEmail(email: string): Promise<DocumentType<UserEntity> | null> {
-        return this.userModel.findOne({email});
+        return this.userModel.findOne({ email });
     }
 
     public async findOrCreate(dto: CreateUserDTO, salt: string): Promise<DocumentType<UserEntity>> {
@@ -43,19 +46,25 @@ export class UserService implements UserServiceInterface {
     }
 
     public addToFavoritesById(id: string, offerId: string): Promise<DocumentType<RentalOfferEntity>[] | null> {
-        return this.userModel.findByIdAndUpdate(id, {$push: {favourites: offerId}, new: true});
+        return this.userModel.findByIdAndUpdate(id, { $push: { favourites: offerId }, new: true });
     }
 
     public removeFromFavoritesById(id: string, offerId: string): Promise<DocumentType<RentalOfferEntity>[] | null> {
-        return this.userModel.findByIdAndUpdate(id, {$pull: {favourites: offerId}, new: true});
+        return this.userModel.findByIdAndUpdate(id, { $pull: { favourites: offerId }, new: true });
     }
 
     public async getFavourites(id: string): Promise<DocumentType<RentalOfferEntity>[]> {
         const innerFavourites = this.userModel.findById(id).select('favourites');
-        return innerFavourites ? this.userModel.find({_id: {$in: innerFavourites.favourites}}) : [];
+        return innerFavourites ? this.userModel.find({ _id: { $in: innerFavourites.favourites } }) : [];
     }
 
-    public async exists(id: string): Promise <boolean> {
-        return (await this.userModel.exists({_id: id})) !== null;
+    public async exists(id: string): Promise<boolean> {
+        return (await this.userModel.exists({ _id: id })) !== null;
+    }
+
+    public async updateById(userId: string, dto: UpdateUserDto): Promise<DocumentType<UserEntity> | null> {
+        return this.userModel
+            .findByIdAndUpdate(userId, dto, { new: true })
+            .exec();
     }
 }

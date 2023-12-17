@@ -22,7 +22,7 @@ export class RentalOfferEntity extends defaultClasses.TimeStamps {
     @prop({required: true, type: () => String, enum: RentaOfferCity})
     public city!: RentaOfferCity;
 
-    @prop({required: true, type: String})
+    @prop({required: true, type: String, default: ''})
     public preview!: string;
 
     @prop({required: true, type: [String], validate: {

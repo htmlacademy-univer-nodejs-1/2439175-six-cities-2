@@ -17,15 +17,20 @@ import { ValidateObjectIdMiddleware } from "../../middleware/validate-object-id.
 import { ValidateDtoMiddleware } from "../../middleware/validate-dto.middleware.js";
 import { DocumentExistsMiddleware } from "../../middleware/document-exits.middleware.js";
 import { PrivateRouteMiddleware } from "../../middleware/private-route.middleware.js";
+import { ConfigInterface } from "../../config/config-interface.js";
+import { SitiesSchema } from "../../config/sities-schema.js";
+import { UploadFileMiddleware } from "../../middleware/upload-file.middleware.js";
+import UploadImageResponse from "./rdo/upload-image-response.js";
 
 @injectable()
 export class RentalOfferController extends Controller {
     constructor(@inject(DIComponent.LoggerInterface) logger: LoggerInterface,
                 @inject(DIComponent.RentalOfferServiceInterface) private readonly rentalOfferInterface: RentalOfferService,
                 @inject(DIComponent.UserServiceInterface) private readonly userInterface: UserServiceInterface,
-                @inject(DIComponent.CommentServiceInterface) private readonly commentInterface: CommentServiceInterface)
+                @inject(DIComponent.CommentServiceInterface) private readonly commentInterface: CommentServiceInterface,
+                @inject(DIComponent.ConfigInterface) configInterface: ConfigInterface<SitiesSchema>)
     {
-        super(logger);
+        super(logger, configInterface);
 
         this.logger.info('Registering routes for rentalOffer');
 
@@ -121,6 +126,17 @@ export class RentalOfferController extends Controller {
                 new ValidateObjectIdMiddleware('offerId'),
                 new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId')]
         });
+
+        this.addRoute({
+            path: '/:offerId/image',
+            method: HttpMethod.Post,
+            handler: this.uploadImage,
+            middlewares: [
+              new PrivateRouteMiddleware(),
+              new ValidateObjectIdMiddleware('offerId'),
+              new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY'), 'preview'),
+            ]
+          });
     }
 
     public async index({params}: Request<ParamsCountForOFfer>, res: Response): Promise<void> {
@@ -141,8 +157,8 @@ export class RentalOfferController extends Controller {
         this.ok(res, createDTOfromRDO(RentalOfferRDO, offer));
     }
 
-    public async update({params, body, tokenPayload}: Request<ParamsOfferDetails, UnknownRecord, UpdateRentalOfferDTO>, res: Response): Promise<void> {
-        const updatedOffer = await this.rentalOfferInterface.updateById(params.offerId, {...body, author: tokenPayload.id});
+    public async update({params, body}: Request<ParamsOfferDetails, UnknownRecord, UpdateRentalOfferDTO>, res: Response): Promise<void> {
+        const updatedOffer = await this.rentalOfferInterface.updateById(params.offerId, {...body});
         this.ok(res, createDTOfromRDO(RentalOfferRDO, updatedOffer));
     }
 
@@ -181,4 +197,11 @@ export class RentalOfferController extends Controller {
         await this.userInterface.removeFromFavoritesById(tokenPayload.id, params.offerId);
         this.noContent(res, {message: 'Removed from favourites'});
     }
+
+    public async uploadImage(req: Request<ParamsOfferDetails>, res: Response) {
+        const {offerId} = req.params;
+        const updateDto = { preview: req.file?.filename };
+        await this.rentalOfferInterface.updateById(offerId, updateDto);
+        this.created(res, createDTOfromRDO(UploadImageResponse, {updateDto}));
+      }
 }

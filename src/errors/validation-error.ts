@@ -1,12 +1,15 @@
-import { StatusCodes } from "http-status-codes";
-import { HttpError } from "./http-errors.js";
-import { ValidationErrorField } from "../types/validation-error-fields.js";
+import { StatusCodes } from 'http-status-codes';
+import { ValidationErrorField } from '../types/validation-error-fields';
 
-export class ValidationError extends HttpError {
+export default class ValidationError extends Error {
+    public httpStatusCode!: number;
     public details: ValidationErrorField[] = [];
-  
+
     constructor(message: string, errors: ValidationErrorField[]) {
-      super(StatusCodes.BAD_REQUEST, message);
-      this.details = errors;
+        super(message);
+
+        this.httpStatusCode = StatusCodes.BAD_REQUEST;
+        this.message = message;
+        this.details = errors;
     }
 }

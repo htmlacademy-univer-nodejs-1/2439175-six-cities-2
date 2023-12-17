@@ -5,13 +5,19 @@ import { LoggerInterface } from "../logger/logger-interface.js";
 import { RouteInterface } from "../route/route-interface.js";
 import { StatusCodes } from "http-status-codes";
 import asyncHandler from "express-async-handler";
+import { ConfigInterface } from "../config/config-interface.js";
+import { SitiesSchema } from "../config/sities-schema.js";
+import { getFullServerPath, transformObject } from "../helpers/common.js";
+import { STATIC_RESOURCE_FILES } from "../modules/app-constatnts.js";
+import { UnknownRecord } from "../types/params.js";
 
 @injectable()
 export abstract class Controller implements ControllerInterface {
     private readonly _router: Router;
 
     constructor(
-        protected readonly logger: LoggerInterface
+        protected readonly logger: LoggerInterface,
+        protected readonly configService: ConfigInterface<SitiesSchema>,
     ) {
         this._router = Router();
     }
@@ -19,6 +25,16 @@ export abstract class Controller implements ControllerInterface {
     get router() {
         return this._router;
     }
+
+    protected addStaticPath(data: UnknownRecord): void {
+        const fullServerPath = getFullServerPath(this.configService.get('HOST'), this.configService.get('PORT'));
+        transformObject(
+          STATIC_RESOURCE_FILES,
+          `${fullServerPath}/${this.configService.get('STATIC_DIRECTORY_PATH')}`,
+          `${fullServerPath}/${this.configService.get('UPLOAD_DIRECTORY')}`,
+          data
+        );
+      }
 
     public addRoute(route: RouteInterface): void {
         const routeHandler = asyncHandler(route.handler.bind(this));

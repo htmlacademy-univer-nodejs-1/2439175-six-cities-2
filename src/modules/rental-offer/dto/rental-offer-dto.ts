@@ -29,8 +29,6 @@ export class UpdateRentalOfferDTO {
     @IsBoolean({message: 'field premium must be boolean'})
     public isPremium?: boolean;
 
-    public author!: string;
-
     @IsOptional()
     @IsEnum(OfferType, {message: 'type must be one of the housing types'})
     public type?: OfferType;

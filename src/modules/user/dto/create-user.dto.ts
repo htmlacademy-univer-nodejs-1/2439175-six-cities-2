@@ -6,9 +6,6 @@ export class CreateUserDTO {
     @IsString({message: 'Email is required.'})
     public email!: string;
 
-    @IsString({message: 'Photo is required.'})
-    public avatarSourcePath!: string;
-
     @Length(1, 15, {message: 'Username length should be from 1 to 15.'})
     @IsString({message: 'Username is required.'})
     public firstname!: string;
