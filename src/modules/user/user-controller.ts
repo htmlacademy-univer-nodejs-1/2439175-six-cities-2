@@ -18,8 +18,9 @@ import { ValidateObjectIdMiddleware } from "../../middleware/validate-object-id.
 import { UploadFileMiddleware } from "../../middleware/upload-file.middleware.js";
 import { AuthInterface } from "../../auth/auth-service.interface.js";
 import { LoggedUserRdo } from "./rdo/logged-user-rdo.js";
-import { LoginUserRequest } from "../../types/params.js";
+import { UnknownRecord } from "../../types/params.js";
 import { PrivateRouteMiddleware } from "../../middleware/private-route.middleware.js";
+import UploadUserAvatarResponse from "./rdo/upload-user-avatar-response.js";
 
 
 @injectable()
@@ -30,7 +31,7 @@ export class UserController extends Controller {
         @inject(DIComponent.ConfigInterface) private readonly configInterface: ConfigInterface<SitiesSchema>,
         @inject(DIComponent.AuthServiceInterface) private readonly authServiceInterface: AuthInterface,
     ) {
-        super(logger);
+        super(logger, configInterface);
 
         this.addRoute({
             path: '/register',
@@ -75,20 +76,17 @@ export class UserController extends Controller {
         this.created(res, createDTOfromRDO(UserRdo, result));
     }
 
-    public async login({ body }: LoginUserRequest, res: Response): Promise<void> {
+    public async login({ body }: Request<UnknownRecord, UnknownRecord, LoginUserDTO>, res: Response): Promise<void> {
         this.logger.info(body.password);
         const user = await this.authServiceInterface.verify(body);
-        const token = await this.authServiceInterface.authenticate(user);
-        const response = createDTOfromRDO(LoggedUserRdo, {
-            email: user.email,
-            token,
-        });
-        this.ok(res, response);
+        await this.authServiceInterface.authenticate(user);
+        this.ok(res, {...createDTOfromRDO(LoggedUserRdo, user)});
     }
 
     public async uploadAvatar(req: Request, res: Response) {
-        this.created(res, {
-            avatarSourcePath: req.file?.path
-        });
+        const {userId} = req.params;
+        const uploadFile = {avatarSourcePath: req.file?.filename};
+        await this.userInterface.updateById(userId, uploadFile);
+        this.created(res, createDTOfromRDO(UploadUserAvatarResponse, uploadFile))
     }
 }

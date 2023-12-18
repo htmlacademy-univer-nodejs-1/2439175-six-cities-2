@@ -23,6 +23,6 @@ export class AuthExceptionFilter implements ExceptionFilterInterface {
             .json({
                 type: 'AUTHORIZATION',
                 error: error.message,
-            });
+        });
     }
 }

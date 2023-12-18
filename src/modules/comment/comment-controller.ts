@@ -15,15 +15,18 @@ import { StatusCodes } from "http-status-codes";
 import { ValidateObjectIdMiddleware } from "../../middleware/validate-object-id.middleware.js";
 import { ValidateDtoMiddleware } from "../../middleware/validate-dto.middleware.js";
 import { PrivateRouteMiddleware } from "../../middleware/private-route.middleware.js";
+import { ConfigInterface } from "../../config/config-interface.js";
+import { SitiesSchema } from "../../config/sities-schema.js";
 
 @injectable()
 export class CommentController extends Controller {
     constructor(
         @inject(DIComponent.RentalOfferServiceInterface) private readonly rentalOfferInterface: RentalOfferServiceInterface,
         @inject(DIComponent.LoggerInterface) protected readonly logger: LoggerInterface,
-        @inject(DIComponent.CommentServiceInterface) private readonly commentInterface: CommentServiceInterface
+        @inject(DIComponent.CommentServiceInterface) private readonly commentInterface: CommentServiceInterface,
+        @inject(DIComponent.ConfigInterface) configInterface: ConfigInterface<SitiesSchema>
     ) {
-        super(logger);
+        super(logger, configInterface);
 
         this.addRoute({
             path: '/:offerId',

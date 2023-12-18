@@ -14,5 +14,5 @@ export function getRandomItem<T> (arr: T[]):T {
 
 export function getRandomFloat(min: number, max: number, toFixed: number): number {
     return +(Math.random() * (max - min) + min).toFixed(toFixed);
-  }
+}
   

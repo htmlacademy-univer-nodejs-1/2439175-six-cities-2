@@ -10,9 +10,13 @@ import express, {Express} from 'express';
 import { ControllerInterface } from "../controller/controller-interface.js";
 import { CommentController } from "./comment/comment-controller.js";
 import { UserController } from "./user/user-controller.js";
-import { ExceptionFilterInterface } from "../exception-filters/exception-filter.interface.js";
 import { AuthExceptionFilter } from "../auth/auth-exceptions-filter.js";
 import { ParseTokenMiddleware } from "../middleware/parse-token.middleware.js";
+import BaseExceptionFilter from "../exception-filters/base-exception-filter.js";
+import HttpErrorExceptionFilter from "../exception-filters/http-exception-filter.js";
+import ValidationExceptionFilter from "../exception-filters/validate-exception-filter.js";
+import { getFullServerPath } from "../helpers/common.js";
+import cors from "cors";
 
 @injectable()
 export class Application {
@@ -25,7 +29,9 @@ export class Application {
         @inject(DIComponent.RentalOfferController) private readonly rentalOfferController: ControllerInterface,
         @inject(DIComponent.CommentController) private readonly commentControler: CommentController,
         @inject(DIComponent.UserController) private readonly userController: UserController,
-        @inject(DIComponent.ExceptionFilterInterface) private readonly exceptionFilterInterface: ExceptionFilterInterface,
+        @inject(DIComponent.BaseExceptionFilter) private readonly baseExceptionFilter: BaseExceptionFilter,
+        @inject(DIComponent.HttpErrorExceptionFilter) private readonly httpErrorExceptionFilter: HttpErrorExceptionFilter,
+        @inject(DIComponent.ValidationExceptionFilter) private readonly validationExceptionFilter: ValidationExceptionFilter,
         @inject(DIComponent.AuthExceptionFilter) private readonly authExceptionFilterInterface: AuthExceptionFilter,
     ) {
         this.expressApplication = express();
@@ -72,26 +78,33 @@ export class Application {
 
     private async _initMiddleware() {
         this.logger.info('Global middleware initialization');
-        const authMiddleware = new ParseTokenMiddleware(this.config.get('JWT_SECRET'));
         this.expressApplication.use(express.json());
         this.expressApplication.use(
             '/upload',
             express.static(this.config.get('UPLOAD_DIRECTORY'))
         );
+        this.expressApplication.use(
+            '/static',
+            express.static(this.config.get('STATIC_DIRECTORY_PATH'))
+        );
+        const authMiddleware = new ParseTokenMiddleware(this.config.get('JWT_SECRET'));
         this.expressApplication.use(authMiddleware.execute.bind(authMiddleware));
+        this.expressApplication.use(cors());
         this.logger.info('Global middleware initialized');
     }
 
     private async _initExceptionFilter() {
         this.logger.info("Init exception filer");
+        this.expressApplication.use(this.baseExceptionFilter.catch.bind(this.baseExceptionFilter));
         this.expressApplication.use(this.authExceptionFilterInterface.catch.bind(this.authExceptionFilterInterface));
-        this.expressApplication.use(this.exceptionFilterInterface.catch.bind(this.exceptionFilterInterface));
+        this.expressApplication.use(this.httpErrorExceptionFilter.catch.bind(this.httpErrorExceptionFilter));
+        this.expressApplication.use(this.validationExceptionFilter.catch.bind(this.validationExceptionFilter));
     }
 
     private async _initServer(){
         this.logger.info('Init server')
         const port = this.config.get('PORT');
         this.expressApplication.listen(port);
-        this.logger.info(`Server started on http://localhost:${this.config.get('PORT')}`)
+        this.logger.info(`Server started on ${getFullServerPath(this.config.get('HOST'), this.config.get('PORT'))}`);
     }
 }
