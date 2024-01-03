@@ -17,7 +17,7 @@ POST http://localhost:1337/users/register HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "testavavtar99@yandex.ru",
+  "email": "exist3@yandex.ru",
   "firstname": "Ilya",
   "type": "Base",
   "password": "password"
@@ -31,7 +31,7 @@ POST http://localhost:1337/users/login HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "testavavtar92@yandex.ru",
+  "email": "exist3@yandex.ru",
   "password": "password"
 }
 

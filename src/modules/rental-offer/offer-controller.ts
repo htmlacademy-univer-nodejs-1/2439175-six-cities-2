@@ -202,7 +202,6 @@ export class RentalOfferController extends Controller {
         const result = [];
         for (let offer of offers) {
             if (await this.userInterface.isFavourite(tokenPayload.id, offer.id)) {
-                offer.isFavourite = true;
                 result.push(offer)
             } // это жуткий костыль. изначально всё должно было работать как надо через mpngoose, но почему-то 
             // если глянуть в user-service, то там есть закоментированный метод для этого, который не работает.
