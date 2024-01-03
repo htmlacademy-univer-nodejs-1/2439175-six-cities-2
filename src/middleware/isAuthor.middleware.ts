@@ -12,7 +12,6 @@ export class IsAuthorMiddleware implements MiddlewareInterface {
   
     public async execute({params, tokenPayload}: Request, _res: Response, next: NextFunction): Promise<void> {
       const offerId = params[this.paramNameFirst];
-      console.log(tokenPayload)
       const userId = tokenPayload['id'];
       if (!await this.service.isAuthor(offerId, userId)) {
         throw new HttpError(

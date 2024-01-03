@@ -156,7 +156,6 @@ export class RentalOfferController extends Controller {
     }
     
     public async create({ body, tokenPayload }: Request<UnknownRecord, UnknownRecord, CreateRentalOfferDTO>, res: Response): Promise<void> {
-        console.log(body)
         const result = await this.rentalOfferInterface.create({...body, author: tokenPayload.id});
         const offer = await this.rentalOfferInterface.findById(result.id);
         this.created(res, createDTOfromRDO(RentalOfferRDO, offer));

@@ -25,8 +25,6 @@ export class AuthService implements AuthInterface {
   public async authenticate(user: UserEntity): Promise<string> {
     const jwtSecret = this.config.get('JWT_SECRET');
     const secretKey = crypto.createSecretKey(jwtSecret, 'utf-8');
-    console.log(user.id)
-    console.log(user._id)
     const tokenPayload: TokenPayload = {
       email: user.email,
       firstname: user.firstname,
