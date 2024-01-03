@@ -15,5 +15,5 @@ export default class UserRdo {
     public avatarSourcePath!: string;
 
     @Expose()
-    public type!:UserType;
+    public type!: UserType;
 }

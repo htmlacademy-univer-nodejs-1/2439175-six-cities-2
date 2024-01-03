@@ -17,8 +17,7 @@ POST http://localhost:1337/users/register HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "exist@yandex.ru",
-  "avatarSourcePath": "ogima.png",
+  "email": "testavavtar99@yandex.ru",
   "firstname": "Ilya",
   "type": "Base",
   "password": "password"
@@ -32,9 +31,14 @@ POST http://localhost:1337/users/login HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "exist3@yandex.ru",
+  "email": "testavavtar92@yandex.ru",
   "password": "password"
 }
 
 ###
 
+###
+
+## Проверить токен пользователя
+GET http://localhost:1337/users/login HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RhdmF2dGFyOTJAeWFuZGV4LnJ1IiwiZmlyc3RuYW1lIjoiSWx5YSIsImlkIjoiNjU5NTU1MDYwOWQyZGM0OGY1OTUzMWRjIiwiaWF0IjoxNzA0Mjg1NzI1LCJleHAiOjE3MDQ0NTg1MjV9.MaA-axf-ptdl2r-MeOxf3W2Ni-XYbuWnBqpSbdT3rRU

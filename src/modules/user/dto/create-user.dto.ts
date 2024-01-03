@@ -1,5 +1,6 @@
-import { IsEmail, IsEnum, IsString, Length } from "class-validator";
+import { IsEmail, IsEnum, IsOptional, IsString, Length, Matches } from "class-validator";
 import { UserType } from "../../../types/db-user-enum.js";
+import { photoRegExp } from "../../rental-offer/dto/rental-offer-dto.js";
 
 export class CreateUserDTO {
     @IsEmail({}, {message: 'Email must be valid.'})
@@ -16,4 +17,9 @@ export class CreateUserDTO {
 
     @IsEnum(UserType, {message: 'type must be one of the user type'})
     public type!: UserType;
+
+    @IsOptional()
+    @Matches(photoRegExp, {message: "Photoes must end with .jpg, .jpeg or .png"})
+    @IsString({message: "AvatarSourcePath msust be a string"})
+    public avatarSourcePath?: string;
 }

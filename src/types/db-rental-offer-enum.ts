@@ -16,17 +16,35 @@ export function getRentalOfferCityEnum(city: string): RentaOfferCity {
     }
 }
 
-export type Coordinates = [number, number];
+export enum Coordinates {
+    Paris = '48.8566, 2.3522',
+    Cologne = '50.9375, 6.9603',
+    Brussels = '50.8503, 4.3517',
+    Amsterdam = '52.3702, 4.8952',
+    Hamburg = '53.5511, 9.9937',
+    Dusseldorf = '51.2277, 6.7735',
+    Default = '0, 0'
+} 
 
-export const RentalOfferCitiesCoordinates: { [key in RentaOfferCity]: Coordinates } = {
-    [RentaOfferCity.Paris]: [48.8566, 2.3522],
-    [RentaOfferCity.Cologne]: [50.9375, 6.9603],
-    [RentaOfferCity.Brussels]: [50.8503, 4.3517],
-    [RentaOfferCity.Amsterdam]: [52.3702, 4.8952],
-    [RentaOfferCity.Hamburg]: [53.5511, 9.9937],
-    [RentaOfferCity.Dusseldorf]: [51.2277, 6.7735],
-    [RentaOfferCity.Default] : [0 ,0]
-  };
+export const CityToCoordinates: Record<RentaOfferCity, Coordinates> = {
+    [RentaOfferCity.Paris]: Coordinates.Paris,
+    [RentaOfferCity.Cologne]: Coordinates.Cologne,
+    [RentaOfferCity.Brussels]: Coordinates.Brussels,
+    [RentaOfferCity.Amsterdam]: Coordinates.Amsterdam,
+    [RentaOfferCity.Hamburg]: Coordinates.Hamburg,
+    [RentaOfferCity.Dusseldorf]: Coordinates.Dusseldorf,
+    [RentaOfferCity.Default]: Coordinates.Default
+}
+
+export const CoordinatesToCity: Record<Coordinates, RentaOfferCity> = {
+    [Coordinates.Paris]: RentaOfferCity.Paris,
+    [Coordinates.Cologne]: RentaOfferCity.Cologne,
+    [Coordinates.Brussels]: RentaOfferCity.Brussels,
+    [Coordinates.Amsterdam]: RentaOfferCity.Amsterdam,
+    [Coordinates.Hamburg]: RentaOfferCity.Hamburg,
+    [Coordinates.Dusseldorf]: RentaOfferCity.Dusseldorf,
+    [Coordinates.Default]: RentaOfferCity.Default
+}
 
 export enum OfferType {
     Apartment = 'Apartment',

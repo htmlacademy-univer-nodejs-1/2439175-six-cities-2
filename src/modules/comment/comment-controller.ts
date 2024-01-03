@@ -33,22 +33,22 @@ export class CommentController extends Controller {
             method: HttpMethod.Post,
             handler: this.create,
             middlewares: [
-                new ValidateObjectIdMiddleware('offerId'),
                 new PrivateRouteMiddleware(),
+                new ValidateObjectIdMiddleware('offerId'),
                 new ValidateDtoMiddleware(CreateCommentDto) ]
         })
     }
 
-    public async create({body, tokenPayload}: Request<UnknownRecord, UnknownRecord, CreateCommentDto>, res: Response): Promise<void> {
-        if (!await this.rentalOfferInterface.exists(body.offerId)) {
+    public async create({params, body, tokenPayload}: Request<UnknownRecord, UnknownRecord, CreateCommentDto>, res: Response): Promise<void> {
+        if (!await this.rentalOfferInterface.exists(params.offerId)) {
             throw new HttpError (
                 StatusCodes.NOT_FOUND,
-                `Offer with id ${body.offerId} not found`,
+                `Offer with id ${params.offerId} not found`,
                 'CommentController'
             );
         }
-        const comment = await this.commentInterface.createForOffer({...body, userId: tokenPayload.id});
-        await this.rentalOfferInterface.addComment(body.offerId)
+        const comment = await this.commentInterface.createForOffer({...body, userId: tokenPayload.id, offerId: params.offerId});
+        await this.rentalOfferInterface.addComment(params.offerId)
         this.created(res, createDTOfromRDO(CommentRdo, comment))
     }
 }

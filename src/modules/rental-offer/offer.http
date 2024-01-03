@@ -1,0 +1,105 @@
+## Создание предложение
+
+POST http://localhost:1337/offer HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0MkB5YW5kZXgucnUiLCJmaXJzdG5hbWUiOiJJbHlhIiwiaWQiOiI2NThjM2ViMWFmMTZiNzc0YTYxZTg4MGYiLCJpYXQiOjE3MDQyNzMyMDEsImV4cCI6MTcwNDQ0NjAwMX0.OPbz05M4KH3UoQwLx3H6450XktW1kUC16slIqR3nSsM
+Content-Type: application/json
+
+{
+  "name": "TestValidate",
+  "description": "lorem ipsum lorem ipsum lorem ipsum",
+  "city": "Paris",
+  "date": "2023-12-27T15:12:28.728Z",
+  "isPremium": true,
+  "isFavourite": false,
+  "rating": 4.8,
+  "type": "House",
+  "rooms": 2,
+  "guests": 2,
+  "cost": 1337,
+  "extras": ["Fridge"],
+  "rating": 1,
+  "preview": "test.png",
+  "photoes": ["test.jpg","test.jpg","test.jpg","test.jpg","test.jpg","test.jpg"],
+  "coordinates": "48.8566, 2.3522"
+}
+
+###
+
+## Список всех предложений
+
+GET http://localhost:1337/offer HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0MkB5YW5kZXgucnUiLCJmaXJzdG5hbWUiOiJJbHlhIiwiaWQiOiI2NThjM2ViMWFmMTZiNzc0YTYxZTg4MGYiLCJpYXQiOjE3MDQyNzMyMDEsImV4cCI6MTcwNDQ0NjAwMX0.OPbz05M4KH3UoQwLx3H6450XktW1kUC16slIqR3nSsM
+###
+
+## Получение одного предложения
+
+GET http://localhost:1337/offer/6595be142be8cb6f11071213 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0MkB5YW5kZXgucnUiLCJmaXJzdG5hbWUiOiJJbHlhIiwiaWQiOiI2NThjM2ViMWFmMTZiNzc0YTYxZTg4MGYiLCJpYXQiOjE3MDQyNzMyMDEsImV4cCI6MTcwNDQ0NjAwMX0.OPbz05M4KH3UoQwLx3H6450XktW1kUC16slIqR3nSsM
+Content-Type: application/json
+
+###
+
+## Обновление одного предложения 
+
+PATCH  http://localhost:1337/offer/6595afd3119b413170cbf81f HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0MkB5YW5kZXgucnUiLCJmaXJzdG5hbWUiOiJJbHlhIiwiaWQiOiI2NThjM2ViMWFmMTZiNzc0YTYxZTg4MGYiLCJpYXQiOjE3MDQyNzMyMDEsImV4cCI6MTcwNDQ0NjAwMX0.OPbz05M4KH3UoQwLx3H6450XktW1kUC16slIqR3nSsM
+Content-Type: application/json
+
+{
+    "cost": 6000,
+    "city": "Amsterdam"
+}
+
+###
+
+## Удаление одного предложения 
+
+DELETE http://localhost:1337/offer/6595be142be8cb6f11071213 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0MkB5YW5kZXgucnUiLCJmaXJzdG5hbWUiOiJJbHlhIiwiaWQiOiI2NThjM2ViMWFmMTZiNzc0YTYxZTg4MGYiLCJpYXQiOjE3MDQyNzMyMDEsImV4cCI6MTcwNDQ0NjAwMX0.OPbz05M4KH3UoQwLx3H6450XktW1kUC16slIqR3nSsM
+Content-Type: application/json
+
+###
+
+## Получить все премиум предложения одного города
+
+GET http://localhost:1337/offer/premium/Paris HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0QHlhbmRleC5ydSIsImZpcnN0bmFtZSI6IklseWEiLCJpZCI6IjY1OGMwYzFiZTkzZDhlM2QxZTEzYjY2MiIsImlhdCI6MTcwMzY3Njk2MiwiZXhwIjoxNzAzODQ5NzYyfQ.ZGEBeqJ2FisIxE74aiNxQKXkIbNQO_mihkSOor97p2s
+Content-Type: application/json
+
+###
+
+## Добавить в фавориты одно предожение
+
+POST http://localhost:1337/offer/favourites/6595afd3119b413170cbf81f HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0MkB5YW5kZXgucnUiLCJmaXJzdG5hbWUiOiJJbHlhIiwiaWQiOiI2NThjM2ViMWFmMTZiNzc0YTYxZTg4MGYiLCJpYXQiOjE3MDQyNzMyMDEsImV4cCI6MTcwNDQ0NjAwMX0.OPbz05M4KH3UoQwLx3H6450XktW1kUC16slIqR3nSsM
+Content-Type: application/json
+
+###
+
+## Получить всех фаворитов (почему-то возвращает всех)
+
+GET http://localhost:1337/offer/favourites/get HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0MkB5YW5kZXgucnUiLCJmaXJzdG5hbWUiOiJJbHlhIiwiaWQiOiI2NThjM2ViMWFmMTZiNzc0YTYxZTg4MGYiLCJpYXQiOjE3MDQyNzMyMDEsImV4cCI6MTcwNDQ0NjAwMX0.OPbz05M4KH3UoQwLx3H6450XktW1kUC16slIqR3nSsM
+Content-Type: application/json
+
+###
+
+## Удалить предложение из любимых
+
+DELETE http://localhost:1337/offer/favourites/6595afd3119b413170cbf81f HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0MkB5YW5kZXgucnUiLCJmaXJzdG5hbWUiOiJJbHlhIiwiaWQiOiI2NThjM2ViMWFmMTZiNzc0YTYxZTg4MGYiLCJpYXQiOjE3MDQyNzMyMDEsImV4cCI6MTcwNDQ0NjAwMX0.OPbz05M4KH3UoQwLx3H6450XktW1kUC16slIqR3nSsM
+
+## Получить комментарии по предложению
+
+GET http://localhost:1337/offer/658c3edcaf16b774a61e8812/comments HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0MkB5YW5kZXgucnUiLCJmaXJzdG5hbWUiOiJJbHlhIiwiaWQiOiI2NThjM2ViMWFmMTZiNzc0YTYxZTg4MGYiLCJpYXQiOjE3MDM5NDQ0NjMsImV4cCI6MTcwNDExNzI2M30.pOnJn3-z1etPuzApt_dgVxvVqW8guuR6zSmsxBZiZiw
+Content-Type: application/json
+
+###
+
+## Отправить картинку по предложению
+
+POST http://localhost:1337/offer/658c089b12758a373ae5f4a3/image HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0MkB5YW5kZXgucnUiLCJmaXJzdG5hbWUiOiJJbHlhIiwiaWQiOiI2NThjM2ViMWFmMTZiNzc0YTYxZTg4MGYiLCJpYXQiOjE3MDQyNzMyMDEsImV4cCI6MTcwNDQ0NjAwMX0.OPbz05M4KH3UoQwLx3H6450XktW1kUC16slIqR3nSsM
+Content-Type: application/json
+

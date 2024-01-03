@@ -16,19 +16,18 @@ export default class CommentService implements CommentServiceInterface {
   }
 
   public async createForOffer(dto: CreateCommentDto): Promise<DocumentType<CommentEntity>> {
-    const commentDTO = await this.commentModel.create(dto);
+    const commentDTO = await this.commentModel.create({...dto, publicationDate: Date.now()});
     const offerId = dto.offerId;
     await this.offerService.addComment(offerId);
-    const all = this.commentModel.find({offerId}).select('rating');
-    const offer = await this.offerService.findById(offerId);
-    const commentsCount = offer?.comments ?? 1;
-    const newRating = all['rating'] / (commentsCount);
-    await this.offerService.updateRating(offerId, newRating);
-    return commentDTO.populate('authorId');
+    const ratings = await this.commentModel.find({offerId}).select('rating');
+    const sum = ratings.map(obj => obj.rating).reduce((total, cur) => total + cur, 0)
+    const avg = Math.round(sum / ratings.length * 10) /10;
+    await this.offerService.updateRating(offerId, avg);
+    return commentDTO.populate('userId');
   }
 
   public async findByOfferId(offerId: string): Promise<DocumentType<CommentEntity>[]> {
-    return this.commentModel.find({offerId}).sort({createdAt: -1}).limit(COMMENTS_MAX).populate('authorId');      
+    return this.commentModel.find({offerId}).sort({createdAt: -1}).limit(COMMENTS_MAX).populate('userId');      
   }
 
   public async deleteByOfferId(offerId: string): Promise<number> {

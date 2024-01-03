@@ -13,22 +13,23 @@ import { UserModel } from '../../modules/user/user-entity.js';
 import { RentalOffer } from '../../types/db-rental-offer.js';
 import RentalOfferService from '../../modules/rental-offer/rental-offer.js';
 import { UserService } from '../../modules/user/user-service.js';
+import { ConfigService } from '../../config/config-service.js';
 
 const DEFAULT_USER_PASSWORD = '123456';
-const DEFAULT_DB_PORT = '27017';
 
 export class ImportCommand implements Command {
   private userService: UserServiceInterface;
   private offerService: RentalOfferServiceInterface;
   private databaseClient: DatabaseClientInterface;
   private logger: LoggerInterface;
-  private salt!: string;
+  private config!: ConfigService
 
   constructor() {
     this.onImportedLine = this.onImportedLine.bind(this);
     this.onCompleteImport = this.onCompleteImport.bind(this);
 
     this.logger = new ConsoleLogger();
+    this.config = new ConfigService(this.logger)
     this.offerService = new RentalOfferService(this.logger, RentalOfferModel);
     this.userService = new UserService(this.logger, UserModel);
     this.databaseClient = new MongoClientService(this.logger);
@@ -36,6 +37,7 @@ export class ImportCommand implements Command {
 
   private async onImportedLine(line: string, resolve: () => void) {
     const offer = createOffer(line);
+    console.log(offer);
     await this.saveOffer(offer);
     resolve();
   }
@@ -49,7 +51,7 @@ export class ImportCommand implements Command {
     const user = await this.userService.findOrCreate({
       ...offer.author,
       password: DEFAULT_USER_PASSWORD
-    }, this.salt);
+    }, this.config.get('SALT'));
 
     await this.offerService.create({
       name: offer.name,
@@ -76,9 +78,14 @@ export class ImportCommand implements Command {
     return '--import';
   }
 
-  public async execute(filename: string, login: string, password: string, host: string, dbname: string, salt: string): Promise<void> {
-    const uri = MongoDBURI(login, password, host, DEFAULT_DB_PORT, dbname);
-    this.salt = salt;
+  public async execute(filename: string): Promise<void> {
+    const uri = MongoDBURI(
+      this.config.get('DB_USER'),
+      this.config.get('DB_PASSWORD'),
+      this.config.get('DB_HOST'),
+      this.config.get('DB_PORT'),
+      this.config.get('DB_NAME')
+  )
 
     await this.databaseClient.connect(uri);
 

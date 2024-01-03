@@ -22,7 +22,7 @@ export interface CommentEntity extends defaultClasses.Base {}
     public publicationDate!: Date;
   
     @prop({ref: UserEntity, required: true,})
-    public authorId!: Ref<UserEntity>;
+    public userId!: Ref<UserEntity>;
   
     @prop({type: () => Number, required: true, min: 1, max: 5})
     public rating!: number;

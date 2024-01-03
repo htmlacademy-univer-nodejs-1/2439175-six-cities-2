@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { UserType } from '../../../types/db-user-enum.js';
 
 export class LoggedUserRdo {
   @Expose()
@@ -8,8 +9,11 @@ export class LoggedUserRdo {
   public email!: string;
 
   @Expose()
-  public avatarPath!: string;
+  public avatarSourcePath!: string;
 
   @Expose()
   public firstname!: string;
+
+  @Expose()
+  public type!: UserType;
 }

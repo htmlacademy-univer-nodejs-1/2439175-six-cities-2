@@ -11,6 +11,7 @@ export interface UserServiceInterface {
     findById(id: string): Promise<DocumentType<UserEntity> | null>;
     addToFavoritesById(id: string, offerId: string): Promise<DocumentType<RentalOfferEntity>[] | null>;
     removeFromFavoritesById(id: string, offerId: string): Promise<DocumentType<RentalOfferEntity>[] | null>;
-    getFavourites(id: string): Promise<DocumentType<RentalOfferEntity>[]>;
+    // getFavourites(id: string): Promise<DocumentType<RentalOfferEntity>[] | null>;
     updateById(userId: string, dto: UpdateUserDto): Promise<DocumentType<UserEntity> | null>;
+    isFavourite(id: string, offerId: string): Promise<boolean>;
 }

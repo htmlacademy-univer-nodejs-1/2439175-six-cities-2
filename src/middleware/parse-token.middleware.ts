@@ -11,7 +11,6 @@ function isTokenPayload(payload: unknown): payload is TokenPayload {
         (typeof payload === 'object' && payload !== null) &&
         ('email' in payload && typeof payload.email === 'string') &&
         ('firstname' in payload && typeof payload.firstname === 'string') &&
-        ('lastname' in payload && typeof payload.lastname === 'string') &&
         ('id' in payload && typeof payload.id === 'string')
     );
 }
@@ -28,7 +27,9 @@ export class ParseTokenMiddleware implements MiddlewareInterface {
         const [, token] = authorizationHeader;
 
         try {
+            console.log('here')
             const { payload } = await jwtVerify(token, createSecretKey(this.jwtSecret, 'utf-8'));
+            console.log(payload)
 
             if (isTokenPayload(payload)) {
                 req.tokenPayload = { ...payload };

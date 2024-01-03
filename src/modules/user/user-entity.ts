@@ -1,16 +1,18 @@
-import typegoose, { defaultClasses, getModelForClass, modelOptions } from "@typegoose/typegoose";
+import typegoose, { Severity, defaultClasses, getModelForClass, modelOptions } from "@typegoose/typegoose";
 import { User } from "../../types/db-user.js";
 import { UserType } from "../../types/db-user-enum.js";
 import { createSHA256 } from "../../helpers/common.js";
 
 const { prop } = typegoose;
-const RICK_ASTLEY_AVATAR = 'https://variety.com/wp-content/uploads/2021/07/Rick-Astley-Never-Gonna-Give-You-Up.png';
 
 export interface UserEntity extends defaultClasses.Base {}
 
 @modelOptions({
     schemaOptions: {
         collection: 'users'
+    },
+    options: {
+        allowMixed: Severity.ALLOW
     }
 })
 export class UserEntity extends defaultClasses.TimeStamps implements User {
@@ -20,7 +22,7 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
     @prop({match: [/^[\w-\.]+@([\w-]+)\.[\w-]+/, 'Email is incorrect'], required: true, unique: true})
     public email!: string;
 
-    @prop({default: RICK_ASTLEY_AVATAR, match: /.*\.(jpg|jpeg|png|gif)$/, required: false})
+    @prop({match: /.*\.(jpg|jpeg|png|gif)$/, required: false})
     public avatarSourcePath!: string;
 
     @prop({ required: true, default: '' })

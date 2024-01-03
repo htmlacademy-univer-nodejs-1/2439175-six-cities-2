@@ -12,4 +12,5 @@ export interface RentalOfferServiceInterface extends DocumentExistsInterface{
     updateRating(id: string, rating: number): Promise<void>;
     findPremiumInCity(city: string): Promise<DocumentType<RentalOfferEntity>[]>
     exists(documentId: string): Promise<boolean>;
+    all(): Promise<DocumentType<RentalOfferEntity>[] | null>;
 }

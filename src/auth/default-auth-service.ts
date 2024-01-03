@@ -25,6 +25,8 @@ export class AuthService implements AuthInterface {
   public async authenticate(user: UserEntity): Promise<string> {
     const jwtSecret = this.config.get('JWT_SECRET');
     const secretKey = crypto.createSecretKey(jwtSecret, 'utf-8');
+    console.log(user.id)
+    console.log(user._id)
     const tokenPayload: TokenPayload = {
       email: user.email,
       firstname: user.firstname,
@@ -45,7 +47,6 @@ export class AuthService implements AuthInterface {
       this.logger.warn(`User with ${dto.email} not found`);
       throw new NotFoundError();
     }
-    console.log(user)
 
     if (!user.checkPassword(dto.password, this.config.get('SALT'))) {
       this.logger.warn(`Incorrect password for ${dto.email}`);

@@ -7,7 +7,7 @@ export type ParamsOfferDetails = {
 } | ParamsDictionary
 
 export type ParamsCountForOFfer = {
-    count: string;
+    count: number;
 }| ParamsDictionary
 
 export type UnknownRecord = Record<string, any>;

@@ -10,7 +10,7 @@ import { Request, Response } from "express";
 import { createDTOfromRDO } from "../../helpers/common.js";
 import { RentalOfferRDO } from "./rdo/rental-offer-rdo.js";
 import { FavouriteRentalOfferRDO } from "./rdo/favoirite-rental-offer-rdo.js";
-import { ParamsCountForOFfer, ParamsOfferDetails, UnknownRecord } from "../../types/params.js";
+import { ParamsOfferDetails, UnknownRecord } from "../../types/params.js";
 import { CreateRentalOfferDTO, UpdateRentalOfferDTO } from "./dto/rental-offer-dto.js";
 import CommentRdo from "../comment/rdo/comment-rdo.js";
 import { ValidateObjectIdMiddleware } from "../../middleware/validate-object-id.middleware.js";
@@ -21,6 +21,8 @@ import { ConfigInterface } from "../../config/config-interface.js";
 import { SitiesSchema } from "../../config/sities-schema.js";
 import { UploadFileMiddleware } from "../../middleware/upload-file.middleware.js";
 import UploadImageResponse from "./rdo/upload-image-response.js";
+import { IsAuthorMiddleware } from "../../middleware/isAuthor.middleware.js";
+import { RightCoordinatesNiddleware } from "../../middleware/right-coordinates.middleware.js";
 
 @injectable()
 export class RentalOfferController extends Controller {
@@ -46,7 +48,8 @@ export class RentalOfferController extends Controller {
             handler: this.create,
             middlewares: [
                 new PrivateRouteMiddleware(),
-                new ValidateDtoMiddleware(CreateRentalOfferDTO)
+                new ValidateDtoMiddleware(CreateRentalOfferDTO),
+                new RightCoordinatesNiddleware(),
             ]
         });
 
@@ -67,7 +70,8 @@ export class RentalOfferController extends Controller {
                 new PrivateRouteMiddleware(),
                 new ValidateObjectIdMiddleware('offerId'),
                 new ValidateDtoMiddleware(UpdateRentalOfferDTO),
-                new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId')]
+                new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId'),
+                new IsAuthorMiddleware(this.rentalOfferInterface, 'offerId')]
         });
 
         this.addRoute({
@@ -77,7 +81,8 @@ export class RentalOfferController extends Controller {
             middlewares: [
                 new PrivateRouteMiddleware(),
                 new ValidateObjectIdMiddleware('offerId'),
-                new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId')]
+                new DocumentExistsMiddleware(this.rentalOfferInterface, 'RentalOffer', 'offerId'),
+                new IsAuthorMiddleware(this.rentalOfferInterface, 'offerId')]
         });
 
         this.addRoute({
@@ -110,7 +115,7 @@ export class RentalOfferController extends Controller {
         });
 
         this.addRoute({
-            path: '/favourites',
+            path: '/favourites/get',
             method: HttpMethod.Get,
             handler: this.getFavourites,
             middlewares: [
@@ -139,21 +144,31 @@ export class RentalOfferController extends Controller {
           });
     }
 
-    public async index({params}: Request<ParamsCountForOFfer>, res: Response): Promise<void> {
+    public async index({params, tokenPayload}: Request, res: Response): Promise<void> {
         const offerCount = params.count ? parseInt(`${params.count}`, 10) : 60;
         const offers = await this.rentalOfferInterface.find(offerCount);
+        if (tokenPayload) {
+            for (let offer of offers) {
+                offer.isFavourite = await this.userInterface.isFavourite(tokenPayload.id, offer.id)
+            };
+        }
         this.ok(res, createDTOfromRDO(RentalOfferRDO, offers));
     }
     
     public async create({ body, tokenPayload }: Request<UnknownRecord, UnknownRecord, CreateRentalOfferDTO>, res: Response): Promise<void> {
+        console.log(body)
         const result = await this.rentalOfferInterface.create({...body, author: tokenPayload.id});
         const offer = await this.rentalOfferInterface.findById(result.id);
         this.created(res, createDTOfromRDO(RentalOfferRDO, offer));
     }
 
-    public async show({params}: Request<ParamsOfferDetails>, res: Response): Promise<void> {
+    public async show({params, tokenPayload}: Request<ParamsOfferDetails>, res: Response): Promise<void> {
+        const isAuthorized = tokenPayload !== undefined;
         const { offerId } = params;
         const offer = await this.rentalOfferInterface.findById(offerId);
+        if (offer && isAuthorized) {
+            offer.isFavourite = await this.userInterface.isFavourite(tokenPayload.id, offerId);
+        }
         this.ok(res, createDTOfromRDO(RentalOfferRDO, offer));
     }
 
@@ -184,8 +199,17 @@ export class RentalOfferController extends Controller {
     }
 
     public async getFavourites({tokenPayload}: Request, _res: Response): Promise<void> {
-        const offers = await this.userInterface.getFavourites(tokenPayload.id);
-        this.ok(_res, createDTOfromRDO(FavouriteRentalOfferRDO, offers));
+        const offers = await this.rentalOfferInterface.all();
+        const result = [];
+        for (let offer of offers) {
+            if (await this.userInterface.isFavourite(tokenPayload.id, offer.id)) {
+                offer.isFavourite = true;
+                result.push(offer)
+            } // это жуткий костыль. изначально всё должно было работать как надо через mpngoose, но почему-то 
+            // если глянуть в user-service, то там есть закоментированный метод для этого, который не работает.
+            // если подскажете, в чём беда, с радостью переделаю, глаза болят смотреть на такое решение
+        }
+        this.ok(_res, createDTOfromRDO(FavouriteRentalOfferRDO, result));
     }
 
     public async addFavourite({ params, tokenPayload }: Request, res: Response): Promise<void> {
