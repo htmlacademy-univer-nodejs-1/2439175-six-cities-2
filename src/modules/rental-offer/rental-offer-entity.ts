@@ -29,7 +29,7 @@ export class RentalOfferEntity extends defaultClasses.TimeStamps {
         validator: function (v: string[]) {
           return v.length === 6;
         },
-        message: 'preview must have exactly 6 elements'},
+        message: 'photoes must have exactly 6 elements'},
         default: []})
     public photoes!: string[];
     
@@ -57,7 +57,7 @@ export class RentalOfferEntity extends defaultClasses.TimeStamps {
     @prop({required: true, default: [], type: [String]})
     public extras!: string[];
 
-    @prop({required: true, type: [Number, Number]})
+    @prop({required: true, type: () => String})
     public coordinates!: Coordinates;
 
     @prop({default: 0})

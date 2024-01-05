@@ -9,12 +9,12 @@ info:
   version: 2.0.0
 
 tags:
-  - name: offers
+  - name: offer
     description: Действия с объявлениями.
-  - name: comments
+  - name: comment
     description: Действия с комментариями.
   - name: users
-    description: Действия с пользователем.
+    description: Действия с пользователями.
 
 paths:
   /users/register:
@@ -40,7 +40,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/user'
 
-        "400":
+        "409":
           description: Пользователь с таким email уже существует.
 
   /users/login:
@@ -66,9 +66,13 @@ paths:
                 properties:
                   token:
                     type: string
-                    example: TOKEN
-        "401":
+                    example: JWT-TOKEN
+                $ref: '#/components/schemas/user'
+        "403":
           description: Авторизация не пройдена
+        "404":
+          description: Пользователь с таким email не найден
+      
 
     get:
       tags:
@@ -86,71 +90,22 @@ paths:
                 $ref: '#/components/schemas/user'
         "401":
           description: Пользователь не авторизован
-  /users/logout:
-    post:
-      tags:
-        - users
-      summary: Выход из закрытой части приложения
-      description: Выход из закрытой части приложения (только если авторизация выполняется на основе сессий)
-      responses:
-        "204":
-          description: Сессия завершена
-  
-  /users/favorite:
-    get:
-      tags:
-        - users
-      summary: Список избранных предложений
-      description: Возвращает массив предложений, добавленных в избранное.
-      security:
-        - Bearer: [ ]
-      responses:
-        "200":
-          description: Список избранных предложений
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/offers'
-        "401":
-          description: Пользователь не авторизован
-  
-  /users/favorite/{offerId}:
-    post:
-      tags:
-        - users
-      summary: Добавление предложения в избранное.
-      description: Добавление предложения в избранное.
-      security:
-        - Bearer: [ ]
-      responses:
-        "201":
-          description: Предложение добавлено в избранное
-        "404":
-          description: Предложение с offerId не найдено
-        "401":
-          description: Пользователь не авторизован
-    delete:
-      tags:
-        - offers
-      summary: Удаление предложения из избранного.
-      description: Удаление предложения из избранногое.
-      security:
-        - Bearer: [ ]
 
-      responses:
-        "201":
-          description: Предложение удалено из избранного
-        "401":
-          description: Пользователь не авторизован
-        "500":
-          description: Предложение не удалено из избранного по внутренним причинам
   
-  /offers/premium/{city}:
+  /offer/premium/{city}:
     get:
       tags:
         - offers
       summary: Премиальные предложения для города
-      description: Возвращает не больше 3 предложений с флагом «Premium».
+      description: Возвращает 3 или меньше предложений с флагом "isPremium".
+      parameters:
+          - name: city
+            in: query
+            description: Город для поиска предложений
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/city'
       responses:
         "200":
           description: Премиальные предложения для города
@@ -159,16 +114,25 @@ paths:
               schema:
                 $ref: '#/components/schemas/offers'
         "404":
-          description: Список предложений для city не получен
+          description: Предложения для city не получены
   
-  /offers/{offerId}:
+  /offer/{offerId}:
     post:
       tags:
-        - offers
+        - offer
       summary: Редактирование предложения
       description: Редактирование предложения
       security:
         - Bearer: [ ]
+      parameters:
+          - name: offerId
+            in: query
+            description: Идентификатор предложения
+            content:
+              application/json:
+                schema:
+                  type: string
+                  example: 509dfsf432vsdfgsd
       requestBody:
         description: Данные для редактирования предложения.
         content:
@@ -184,32 +148,47 @@ paths:
               schema:
                 $ref: '#/components/schemas/editOffer'
         "400":
-          description: Предложение не изменено. Переданы невалидные данные
+          description: Данные не прошли валидацию. Предложение не зменено.
         "401":
           description: Пользователь не авторизован
         "404":
           description: Предложение с offerId не найдено
     delete:
       tags:
-        - offers
+        - offer
       summary: Удаление предложения
       description: Удаление предложения
       security:
         - Bearer: [ ]
+      parameters:
+          - name: offerId
+            in: query
+            description: Идентификатор предложения
+            content:
+              application/json:
+                schema:
+                  type: string
+                  example: 509dfsf432vsdfgsd
       responses:
         "204":
           description: Предложение удалено
-        "500":
-          description: Предложение не удалено по каким-то внутренним причинам
         "401":
           description: Пользователь не авторизован
     
     get:
       tags:
-        - offers
+        - offer
       summary: Детальная информация по предложению
       description: Детальная информация по предложению
-
+      parameters:
+          - name: offerId
+            in: query
+            description: Идентификатор предложения
+            content:
+              application/json:
+                schema:
+                  type: string
+                  example: 509dfsf432vsdfgsd
       responses:
         "200":
           description: Детальная информация по предложению
@@ -220,16 +199,16 @@ paths:
         "404":
           description: Предложение с offerId не найдено
   
-  /offers:
+  /offer:
     get:
       tags:
-        - offers
+        - offer
       summary: Список предложений по аренде
       description: Список предложений по аренде
       parameters:
         - name: count
           in: query
-          description: OFFER COUNT
+          description: Количество предложений для показа
           content:
             application/json:
               schema:
@@ -237,7 +216,8 @@ paths:
                 properties:
                   count:
                     type: number
-                    example: 120
+                    example: 40
+                    maximum: 60
       responses:
         "200":
           description: Список предложений по аренде
@@ -247,7 +227,7 @@ paths:
                 $ref: '#/components/schemas/offers'
     post:
       tags:
-        - offers
+        - offer
       summary: Создание нового предложения
       description: Создание нового предложения
       security:
@@ -271,23 +251,6 @@ paths:
         "401":
           description: Пользователь не авторизован
 
-    /comments/{offerId}:
-      get:
-        tags:
-          - comments
-        summary: Список комментариев для предложения
-        description: Список комментариев для предложения
-
-        responses:
-          "200":
-            description: Список комментариев для предложения успешно получен
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/comments'
-          "404":
-            description: Не удалось найти предложение по offerId
-
       post:
         tags:
           - comments
@@ -298,15 +261,12 @@ paths:
         parameters:
           - name: offerId
             in: query
-            description: OFFER ID
+            description: Идентификатор предложения
             content:
               application/json:
                 schema:
-                  type: object
-                  properties:
-                    offerId:
-                      type: string
-                      example: ID
+                  type: string
+                  example: 509dfsf432vsdfgsd
         requestBody:
           description: Добавление комментария
           content:
@@ -325,6 +285,97 @@ paths:
             description: Не удалось найти предложение по offerId
           "401":
             description: Пользователь не авторизован
+          "403":
+            description: Недостаточно прав. Предложение создано другим пользователем.
+    
+    /offer/favourites/{offerId}:
+      post:
+        tags:
+          - offer
+        summary: Добавить предложение в список любимых
+        description: Добавляет предложение в спиоск любимых предложений пользователя
+        security:
+          - Bearer: [ ]
+        parameters:
+          - name: offerId
+            in: query
+            description: Идентификатор предложения
+            content:
+              application/json:
+                schema:
+                  type: string
+                  example: 509dfsf432vsdfgsd
+        responses:
+          "200":
+            description: Предложение успешно добавлено
+          "404":
+            description: Не удалось найти предложение по offerId
+
+      delete:
+        tags:
+          - offer
+        summary: Удалить предложение из списка любимых
+        description: Удаляет предложение из списка любимых предложений пользователя
+        security:
+          - Bearer: [ ]
+        parameters:
+          - name: offerId
+            in: query
+            description: Идентификатор предложения
+            content:
+              application/json:
+                schema:
+                  type: string
+                  example: 509dfsf432vsdfgsd
+        responses:
+          "204":
+            description: Предложение успешно удалено
+          "404":
+            description: Не удалось найти предложение по offerId
+
+    /offer/favourites/get:
+      get:
+        tags:
+          - offer
+        summary: Получить любимые предложения пользователя
+        description: Добавляет предложение в спиоск любимых предложений пользователя
+        security:
+          - Bearer: [ ]
+        responses:
+          "200":
+            description: Предложение успешно получены
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/offers'
+          "401":
+            description: Пользователь не авторизован
+    
+    /offer/{offerId}/comments:
+      get:
+        tags:
+          - offer
+        summary: Получить комментарии по предложению
+        description: Получает комментарии по конкретному предложению. Не больше 50.
+        parameters:
+          - name: offerId
+            in: query
+            description: Идентификатор предложения
+            content:
+              application/json:
+                schema:
+                  type: string
+                  example: 509dfsf432vsdfgsd
+        responses:
+          "200":
+            description: Предложение успешно получены
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/comments'
+          "404":
+            description: Предложение не найдено.
+
 
 
 components:
@@ -339,20 +390,16 @@ components:
 
         firstname:
           type: string
-          example: John
+          example: Kilya
 
         password:
           type: string
-          example: 1337228
-
-        avatarPath:
-          type: string
-          example: 1.jpg
+          example: "1337228"
         
-        userType:
+        type:
           type: string
-          enum: [pro, base, default]
-          example: base
+          enum: [Pro, Base]
+          example: Base
 
     user:
       type: object
@@ -360,7 +407,7 @@ components:
       properties:
         id:
           type: string
-          example: 6329c3d6a04ab1061c6425ea
+          example: 6595a0c57f302d0c63791987
 
         email:
           type: string
@@ -374,6 +421,10 @@ components:
           type: string
           example: test.jpg
 
+        type:
+          enum: ['Base', 'Pro']
+          example: Base
+
     loginUser:
       type: object
 
@@ -384,41 +435,39 @@ components:
 
         password:
           type: string
-          example: 12_-_2321
+          example: password1
     
     offer:
       type: object
       properties:
         name:
           type: string
-          example: Gkjdsogk
+          example: "72-комнатная квартира на Уралмаше"
           minLength: 10
           maxLength: 100
 
         description:
           type: string
-          example: dskgndskgndsklngjksd
+          example: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt"
           minLength: 20
           maxLength: 1024
 
         date:
           type: string
-          example: 2023-11-01T00:00:00Z
+          example: 2002-08-01T13:37:42Z
 
         city:
-          type: string
-          enum: [ Paris, Cologne, Brussels, Amsterdam, Hamburg, Dusseldorf ]
-          example: Paris
+          $ref: '#/components/schemas/city'
 
         preview:
           type: string
-          example: offer.jpg
+          example: preview.jpg
 
         photoes:
           type: array
           items:
             type: string
-            example: offer.jpg
+            example: photo.jpg
           minItems: 6
           maxItems: 6
 
@@ -440,23 +489,23 @@ components:
         type:
           type: string
           enum: [ Apartment, House, Room, Hotel ]
-          example: apartment
+          example: Hotel
 
         rooms:
           type: integer
-          example: 4
+          example: 2
           minimum: 1
           maximum: 8
 
         guests:
           type: integer
-          example: 3
+          example: 9
           minimum: 1
           maximum: 10
 
         cost:
           type: number
-          example: 50600
+          example: 13370
           minimum: 100
           maximum: 100000
 
@@ -465,7 +514,7 @@ components:
           items:
             type: string
             enum: [ Breakfast, Air conditioning, Laptop friendly workspace, Baby seat, Washer, Towels, Fridge ]
-            example: Breakfast, Laptop
+            example: Air conditioning, Laptop friendly workspace
           minItems: 1
 
         author:
@@ -473,7 +522,7 @@ components:
 
         commentsCount:
           type: number
-          example: 10
+          example: 2
 
         coordinates:
           $ref: '#/components/schemas/coordinates'
@@ -481,40 +530,34 @@ components:
     editOffer:
       type: object
       properties:
-        id:
-          type: string
-          example: 6329c3d6a04ab1061c6425ea
-
         name:
           type: string
-          example: Квартира
+          example: "72-комнатная квартира на Уралмаше"
           minLength: 10
           maxLength: 100
 
         description:
           type: string
-          example: Описание
+          example: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt"
           minLength: 20
           maxLength: 1024
 
         date:
           type: string
-          example: 2023-11-01T00:00:00Z
+          example: 2002-08-01T13:37:42Z
 
         city:
-          type: string
-          enum: [ Paris, Cologne, Brussels, Amsterdam, Hamburg, Dusseldorf ]
-          example: Paris
+          $ref: '#/components/schemas/city'
 
         preview:
           type: string
-          example: offer.jpg
+          example: preview.jpg
 
         photoes:
           type: array
           items:
             type: string
-            example: [ offer.jpg, offer_room.jpg ]
+            example: photo.jpg
           minItems: 6
           maxItems: 6
 
@@ -536,23 +579,23 @@ components:
         type:
           type: string
           enum: [ Apartment, House, Room, Hotel ]
-          example: apartment
+          example: Hotel
 
         rooms:
           type: integer
-          example: 4
+          example: 2
           minimum: 1
           maximum: 8
 
         guests:
           type: integer
-          example: 3
+          example: 9
           minimum: 1
           maximum: 10
 
         cost:
           type: number
-          example: 50600
+          example: 13370
           minimum: 100
           maximum: 100000
 
@@ -561,7 +604,7 @@ components:
           items:
             type: string
             enum: [ Breakfast, Air conditioning, Laptop friendly workspace, Baby seat, Washer, Towels, Fridge ]
-            example: [ Breakfast, Laptop ]
+            example: Air conditioning, Laptop friendly workspace
           minItems: 1
 
         author:
@@ -569,7 +612,7 @@ components:
 
         commentsCount:
           type: number
-          example: 10
+          example: 2
 
         coordinates:
           $ref: '#/components/schemas/coordinates'
@@ -581,21 +624,60 @@ components:
         $ref: '#/components/schemas/offer'
 
     coordinates:
+      type: string
+      enum: ['48.8566, 2.3522', '50.9375, 6.9603', '50.8503, 4.3517', '52.3702, 4.8952', '53.5511, 9.9937', '51.2277, 6.7735']
+      example: '48.8566, 2.3522'
+    
+    city:
+      type: string
+      enum: [ Apartment, House, Room, Hotel ]
+      example: Hotel
+    
+    comment:
       type: object
-
       properties:
-        latitude:
-          type: float
-          example: 22.2233455
+        text:
+          type: string
+          example: Типичный отзыв
+          minLength: 5
+          maxLength: 1024
+        
+        id:
+          type: string
+          example: 5847vsdf8547392
 
-        longitude:
-          type: float
-          example: 1.33345445
+        date:
+          type: string
+          example: 2002-13-24T11:32:00Z
 
-    changeFavorite:
+        rating:
+          type: number
+          example: 5
+          minimum: 1
+          maximum: 5
+        user:
+          $ref: '#/components/schemas/user'
+
+    comments:
+      type: array
+      items:
+        type: comment
+        $ref: '#/components/schemas/comment'
+    
+    commentCreate:
       type: object
-
       properties:
-        favorite:
-          type: boolean
-          example: true
+        text:
+          type: string
+          example: Типичный отзыв
+          minLength: 5
+          maxLength: 1024
+
+        rating:
+          type: number
+          example: 5
+          minimum: 1
+          maximum: 5
+
+        userId:
+          $ref: '#/components/schemas/user'

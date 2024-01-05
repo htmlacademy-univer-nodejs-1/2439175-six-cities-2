@@ -5,7 +5,7 @@ import { LoggerInterface } from "../logger/logger-interface.js";
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { HttpError } from "../errors/http-errors.js";
-import { createErrorObject } from "../helpers/common.js";
+import { createErrorObjectFromMessage } from "../helpers/common.js";
 
 @injectable()
 export class ExceptionFilter implements ExceptionFilterInterface {
@@ -24,13 +24,13 @@ export class ExceptionFilter implements ExceptionFilterInterface {
         this.logger.error(`[${error.detail}]: ${error.httpStatusCode} - ${error.message}`);
         res
             .status(error.httpStatusCode)
-            .json(createErrorObject(error.message))
+            .json(createErrorObjectFromMessage(error.message))
     }
 
     private handleOtherError(error: Error, _req: Request, res: Response, _next: NextFunction) {
         this.logger.error(error.message);
         res
             .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json(createErrorObject(error.message))
+            .json(createErrorObjectFromMessage(error.message))
     }
 }

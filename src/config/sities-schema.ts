@@ -17,16 +17,6 @@ export type SitiesSchema = {
     STATIC_DIRECTORY_PATH: string;
 }
 
-const generateRandomString = (): string => {
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    for (let i = 0; i < 256; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-}
-
 
 export const configSitiesSchema = convict<SitiesSchema>({
     PORT: {
@@ -38,7 +28,7 @@ export const configSitiesSchema = convict<SitiesSchema>({
     SALT: {
         doc: 'Salt for incoming connection',
         format: String,
-        default: generateRandomString()
+        default: 'SALT'
     },
     DB_HOST: {
         doc: 'IP-address for incoming connection',

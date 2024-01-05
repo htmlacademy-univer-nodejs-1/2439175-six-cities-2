@@ -1,5 +1,5 @@
 import { RentalOffer } from "../types/db-rental-offer.js";
-import { getExtrasTypeEnum, getOfferTypeEnum, getRentalOfferCityEnum, RentalOfferCitiesCoordinates } from "../types/db-rental-offer-enum.js";
+import { getExtrasTypeEnum, getOfferTypeEnum, getRentalOfferCityEnum, CityToCoordinates } from "../types/db-rental-offer-enum.js";
 import { getUserTypeEnum } from "../types/db-user-enum.js";
 
 
@@ -50,7 +50,7 @@ export function createOffer(data: string): RentalOffer {
         extras: extras.split(';').map(e => getExtrasTypeEnum(e)),
         guests: Number.parseInt(guests, 10),
         author: user,
-        coordinates: RentalOfferCitiesCoordinates[getRentalOfferCityEnum(city)],
+        coordinates: CityToCoordinates[getRentalOfferCityEnum(city)],
         type: getOfferTypeEnum(type)
     }
 }

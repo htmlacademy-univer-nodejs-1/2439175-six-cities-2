@@ -9,14 +9,15 @@
   ],
   "main": "main.js",
   "scripts": {
-    "start": "npm run build && node ./dist/main.js",
+    "start": "npm run build && node ./dist/src/main.js",
     "build": "npm run clean && npm run compile",
     "lint": "eslint src/ --ext .ts",
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
     "mock:server": "json-server ./mocks/mock-server-data.json --port 3123",
     "ts": "ts-node",
-    "devstart": "nodemon"
+    "devstart": "nodemon",
+    "cli": "ts-node ./src/main-cli.ts"
   },
   "devDependencies": {
     "@types/convict-format-with-validator": "6.0.4",

@@ -45,7 +45,6 @@ export class AuthService implements AuthInterface {
       this.logger.warn(`User with ${dto.email} not found`);
       throw new NotFoundError();
     }
-    console.log(user)
 
     if (!user.checkPassword(dto.password, this.config.get('SALT'))) {
       this.logger.warn(`Incorrect password for ${dto.email}`);

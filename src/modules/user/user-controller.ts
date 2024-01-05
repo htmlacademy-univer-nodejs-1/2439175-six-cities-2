@@ -21,6 +21,7 @@ import { LoggedUserRdo } from "./rdo/logged-user-rdo.js";
 import { UnknownRecord } from "../../types/params.js";
 import { PrivateRouteMiddleware } from "../../middleware/private-route.middleware.js";
 import UploadUserAvatarResponse from "./rdo/upload-user-avatar-response.js";
+import { OnlyPublicRouteMiddleware } from "../../middleware/only-public-route.middleware.js";
 
 
 @injectable()
@@ -37,7 +38,10 @@ export class UserController extends Controller {
             path: '/register',
             method: HttpMethod.Post,
             handler: this.create,
-            middlewares: [new ValidateDtoMiddleware(CreateUserDTO)]
+            middlewares: [
+                new OnlyPublicRouteMiddleware(),
+                new ValidateDtoMiddleware(CreateUserDTO)
+            ]
         });
 
         this.addRoute({
@@ -56,6 +60,12 @@ export class UserController extends Controller {
                 new ValidateObjectIdMiddleware('userId'),
                 new UploadFileMiddleware(this.configInterface.get('UPLOAD_DIRECTORY'), 'avatar')
             ]
+        });
+        this.addRoute({
+            path: '/login',
+            method: HttpMethod.Get,
+            handler: this.checkAuthenticate,
+            middlewares: [new PrivateRouteMiddleware()]
         });
     }
 
@@ -77,10 +87,15 @@ export class UserController extends Controller {
     }
 
     public async login({ body }: Request<UnknownRecord, UnknownRecord, LoginUserDTO>, res: Response): Promise<void> {
-        this.logger.info(body.password);
         const user = await this.authServiceInterface.verify(body);
-        await this.authServiceInterface.authenticate(user);
-        this.ok(res, {...createDTOfromRDO(LoggedUserRdo, user)});
+        const token = await this.authServiceInterface.authenticate(user);
+        this.ok(res, {...createDTOfromRDO(LoggedUserRdo, {
+            email: user.email, 
+            token: token,
+            firstname: user.firstname,
+            avatarPath: user.avatarSourcePath,
+            type: user.type,
+        })});
     }
 
     public async uploadAvatar(req: Request, res: Response) {
@@ -89,4 +104,16 @@ export class UserController extends Controller {
         await this.userInterface.updateById(userId, uploadFile);
         this.created(res, createDTOfromRDO(UploadUserAvatarResponse, uploadFile))
     }
+
+    public async checkAuthenticate({tokenPayload}: Request, res: Response) {
+        const foundedUser = await this.userInterface.findByEmail(tokenPayload.email);
+        if (! foundedUser) {
+          throw new HttpError(
+            StatusCodes.UNAUTHORIZED,
+            'Unauthorized',
+            'UserController'
+          );
+        }
+        this.ok(res, createDTOfromRDO(LoggedUserRdo, foundedUser));
+      }
 }

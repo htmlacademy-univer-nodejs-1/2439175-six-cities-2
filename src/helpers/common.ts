@@ -23,6 +23,12 @@ export function createErrorObject(serviceError: ServiceError, message: string, d
     };
 }
 
+export function createErrorObjectFromMessage(message: string) {
+    return {
+        error: message
+    };
+}
+
 export function transformErrors(errors: ValidationError[]): ValidationErrorField[] {
     return errors.map(({ property, value, constraints }) => ({
         property,

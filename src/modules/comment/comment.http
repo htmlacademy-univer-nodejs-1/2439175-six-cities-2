@@ -1,0 +1,12 @@
+## Создание комментария
+
+POST http://localhost:1337/comment/658c3edcaf16b774a61e8812 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4aXN0MkB5YW5kZXgucnUiLCJmaXJzdG5hbWUiOiJJbHlhIiwiaWQiOiI2NThjM2ViMWFmMTZiNzc0YTYxZTg4MGYiLCJpYXQiOjE3MDM5NDQ0NjMsImV4cCI6MTcwNDExNzI2M30.pOnJn3-z1etPuzApt_dgVxvVqW8guuR6zSmsxBZiZiw
+Content-Type: application/json
+
+{
+  "text": "ЖОПАТЕСТ",
+  "rating": 1
+}
+
+###

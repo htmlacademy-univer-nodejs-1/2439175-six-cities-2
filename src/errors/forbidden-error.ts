@@ -3,6 +3,6 @@ import { BaseUserError } from "./base-user-error.js";
 
 export class ForbiddenError extends BaseUserError {
   constructor() {
-    super(StatusCodes.UNAUTHORIZED, 'Incorrect user name or password');
+    super(StatusCodes.FORBIDDEN, 'Incorrect user name or password');
   }
 }
